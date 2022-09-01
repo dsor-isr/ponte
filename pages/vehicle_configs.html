@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Vehicle Configuration</title>
+  <link rel="stylesheet" type="text/css" media="all" href="../css/styles.css">
+  <link rel="stylesheet" type="text/css" media="all" href="../style/dropdown.css">
+  <link rel="stylesheet" type="text/css" media="all" href="../css/pure/pure-min.css">
+  <link rel="stylesheet" type="text/css" media="all" href="../css/pure/grids-responsive-min.css">
+  <style>
+    html, body, div, span, object,
+    form, input, h1, h2, button, label, a, img {
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      /* this will work for QtWebKit in future */
+      -webkit-user-drag: none;
+    }
+    input[type=text] {
+      -moz-user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .ck-button {
+        margin:4px;
+        background:rgb(202, 60, 60);
+        border-radius:4px;
+        border:1px solid #D0D0D0;
+        overflow:auto;
+        color:#fff;
+        float:left;
+        padding: 0px;
+    }
+
+    .ck-button:hover {
+        background:green;
+    }
+
+    .ck-button label {
+        float:left;
+        width:4.5em;
+    }
+
+    .ck-button label span {
+        text-align:center;
+        padding:3px 0px;
+        display:block;
+    }
+
+    .ck-button label input {
+        position:absolute;
+        top:-20px;
+    }
+ 
+    .ck-button input:checked + span {
+        background: green;
+        color:#fff;
+    }
+  </style>
+  <script type="text/javascript" charset="utf-8" src="../scripts/Medusa_MOOS_ROS.js"> </script>
+  <script>
+    var valueschanged = false;
+    var VehiclesData = new Array();
+    var ROS_VARS = new Array();
+    var ROS_SPARE_VARS = new Array();
+    var VehiclesID=0;
+    var display_flags;
+    
+    function addforaskvars(){
+     var morevarsElement=document.getElementById('morevars');
+     var varstoaskElement=document.getElementById('varstoask');
+     
+     for(var x=morevarsElement.length-1;x>=0;x--){
+      //console.log('Not selected ' + morevarsElement.children[x].innerHTML);
+      if(morevarsElement.children[x].selected){
+        varstoaskElement.appendChild(morevarsElement.children[x]);
+        //console.log('Selected ' + morevarsElement.children[x].innerHTML);
+        valueschanged = true;
+      }
+     }
+    }
+    
+    function delfromaskvars(){
+     var morevarsElement=document.getElementById('morevars');
+     var varstoaskElement=document.getElementById('varstoask');
+     
+     for(var x=varstoaskElement.length-1;x>=0;x--){
+      //console.log('Not selected ' + morevarsElement.children[x].innerHTML);
+      if(varstoaskElement.children[x].selected){
+        morevarsElement.appendChild(varstoaskElement.children[x]);
+        //console.log('Selected ' + morevarsElement.children[x].innerHTML);
+        valueschanged = true;
+      }
+     }
+    }
+    
+    function addNewVar(){
+      var topicElement=document.getElementById('newtopic');
+      var varstoaskElement=document.getElementById('varstoask');
+      var child = document.createElement("option");
+
+      for(var x=varstoaskElement.length-1;x>=0;x--){
+        if(varstoaskElement.children[x].innerHTML == topicElement.value){
+          return;
+        }
+      }
+      child.innerHTML = topicElement.value;
+      child.selected =true;
+      varstoaskElement.appendChild(child);
+      valueschanged = true;
+    }
+    
+    function SelectList(){
+      var varstoaskElement=document.getElementById('varstoask');
+      var postopicElement=document.getElementById('Postopic');
+      var selec = 0; var topic="";
+      for(var x=varstoaskElement.length-1;x>=0;x--){
+        if(varstoaskElement.children[x].selected){
+          selec++;
+          topic = varstoaskElement.children[x].innerHTML;
+        }
+      }
+      if(selec==1){
+        postopicElement.value = topic;
+        valueschanged = true;
+        onChangeValues(null);
+      }else{
+        alert('Select only 1 from the list above');
+      }
+    }
+    
+  function readFile(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+        document.getElementById('vehicle_image').setAttribute('src' ,e.target.result);
+        onChangeValues(null);
+      }
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+  
+  function chVehicle(id){
+    var path;
+    if(VehiclesData[id].img_path.indexOf('data:')==0){
+    	path=VehiclesData[id].img_path;
+    }else{
+	    if(VehiclesData[id].img_path.indexOf('file:///')==-1 && VehiclesData[id].img_path.indexOf('../')==-1){
+	      path="../"+VehiclesData[id].img_path;
+	    }else{
+	      path=VehiclesData[id].img_path;
+	      console.log("error changing vehicle");
+	    }
+    }
+    document.getElementById('vehicle_image').src=path;
+    document.getElementById('toggleActive').checked=VehiclesData[id].active;
+    document.getElementById('vehicle_name').value=VehiclesData[id].name;
+    document.getElementById('txtIP').value=VehiclesData[id].ip;
+    document.getElementById('XJ').value=VehiclesData[id].wp1[0];
+    document.getElementById('YJ').value=VehiclesData[id].wp1[1];
+    document.getElementById('XK').value=VehiclesData[id].wp2[0];
+    document.getElementById('YK').value=VehiclesData[id].wp2[1];
+    document.getElementById('Postopic').value=VehiclesData[id].state_topic_name;
+    document.getElementById('pathcolor').value=VehiclesData[id].color;
+    document.getElementById('vehiclesource').selectedIndex=VehiclesData[id].state_topic_source;
+    document.getElementById('Vehicle'+id).checked=true;
+    document.getElementById('toggleTrailType').checked = VehiclesData[id].trail_points;
+    document.getElementById('toggleIcon').checked = VehiclesData[id].disable_icon;
+    document.getElementById('toggleDisplay').checked = VehiclesData[id].display_all;
+    VehiclesID=id;
+    onChangeValues(null);
+  }
+  
+  function LoadValues(scratch){
+    if(scratch){
+      if(localStorage.ROS_VARS)
+        ROS_VARS = JSON.parse(localStorage.ROS_VARS);
+      if(localStorage.ROS_SPARE_VARS)
+        ROS_SPARE_VARS = JSON.parse(localStorage.ROS_SPARE_VARS);
+      if(localStorage.VehiclesData)
+        VehiclesData = JSON.parse(localStorage.VehiclesData);
+    }
+    
+    var vehicle_select_div = document.getElementById('vehicle_select');
+    var vehiclesource = document.getElementById('vehiclesource');
+    console.log('vehicles_configs.html Loading current values');
+    
+    // Delete all inputs
+    while (vehicle_select_div.firstChild) {
+      vehicle_select_div.removeChild(vehicle_select_div.firstChild);
+    }
+    // Delete all options
+    while (vehiclesource.firstChild) {
+      vehiclesource.removeChild(vehiclesource.firstChild);
+    }
+    // Load settings
+    for(var i=0;i<VehiclesData.length;i++){
+      var input_child = document.createElement('input');
+      var input_child_label = document.createElement('label');
+      console.log('vehicles_configs.html Loading current values for vehicle ' +i);
+      vehicle_select_div.appendChild(input_child);
+      vehicle_select_div.setAttribute('class','pure-control-group');
+      vehicle_select_div.appendChild(input_child_label);
+      input_child_label.setAttribute('for','Vehicle'+i);//VehiclesData[i].name)
+      input_child_label.innerHTML=VehiclesData[i].name;
+      input_child.setAttribute('onclick','chVehicle('+i+');');
+      input_child.setAttribute('value',VehiclesData[i].name);
+      input_child.setAttribute('name','vehicle');
+      input_child.setAttribute('type','radio');
+      input_child.setAttribute('class','pure-radio');
+      input_child.setAttribute('id','Vehicle'+i);
+      
+      var option_child = document.createElement('option');
+      vehiclesource.appendChild(option_child);
+      option_child.setAttribute('value',VehiclesData[i].name);
+      //option_child.setAttribute('onchange','onChangeValues(this);');
+      option_child.innerHTML =VehiclesData[i].name;
+    }
+    
+    // Delete all options
+    var varstoask = document.getElementById('varstoask');
+    while (varstoask.firstChild) {
+      varstoask.removeChild(varstoask.firstChild);
+    }
+    for(var i=0;i<ROS_VARS.length;i++){
+      var option_child = document.createElement('option');
+      varstoask.appendChild(option_child);
+      option_child.setAttribute('value',ROS_VARS[i]);
+      option_child.innerHTML = ROS_VARS[i];
+    }
+    
+    // Delete all options
+    var morevars = document.getElementById('morevars');
+    while (morevars.firstChild) {
+      morevars.removeChild(morevars.firstChild);
+    }
+    for(var i=0;i<ROS_SPARE_VARS.length;i++){
+      var option_child = document.createElement('option');
+      morevars.appendChild(option_child);
+      option_child.setAttribute('value',ROS_SPARE_VARS[i]);
+      option_child.innerHTML = ROS_SPARE_VARS[i];
+    }
+
+    if (localStorage.display_flags) {
+      display_flags = JSON.parse(localStorage.display_flags);
+    }else{
+      display_flags = {IMU: false, Thrusters: false, Battery: false, GPS: false, Pressure: false, RAW: false, MATLAB: false, Modems: false};
+    }
+    for(var key in display_flags){
+      var togglebutton = document.getElementById('toggle'+key);
+      if(!togglebutton) continue;
+      togglebutton.checked=display_flags[key];
+    }
+    
+    chVehicle(0);
+  }
+  
+  function onChangeValues(obj){
+    //console.log('vehicles_configs.html Changed values');
+    VehiclesData[VehiclesID].img_path=document.getElementById('vehicle_image').src;
+    VehiclesData[VehiclesID].active = document.getElementById('toggleActive').checked;
+    VehiclesData[VehiclesID].name = document.getElementById('vehicle_name').value;
+    VehiclesData[VehiclesID].ip = document.getElementById('txtIP').value;
+    VehiclesData[VehiclesID].wp1[0] = document.getElementById('XJ').value;
+    VehiclesData[VehiclesID].wp1[1] = document.getElementById('YJ').value;
+    VehiclesData[VehiclesID].wp2[0] =document.getElementById('XK').value;
+    VehiclesData[VehiclesID].wp2[1] = document.getElementById('YK').value;
+    VehiclesData[VehiclesID].state_topic_name = document.getElementById('Postopic').value;
+    VehiclesData[VehiclesID].color = document.getElementById('pathcolor').value;
+    VehiclesData[VehiclesID].state_topic_source=document.getElementById('vehiclesource').selectedIndex;
+    VehiclesData[VehiclesID].trail_points = document.getElementById('toggleTrailType').checked;
+    VehiclesData[VehiclesID].disable_icon = document.getElementById('toggleIcon').checked;
+    VehiclesData[VehiclesID].display_all = document.getElementById('toggleDisplay').checked;
+    valueschanged = true;
+  }
+
+  function SaveValues(){
+    if(valueschanged){
+      var varstoaskElement=document.getElementById('varstoask');
+      ROS_VARS=[];
+      for(var x=0;x<varstoaskElement.length;x++){
+        ROS_VARS.push(varstoaskElement.children[x].innerHTML);
+      }
+      
+      var morevarsElement=document.getElementById('morevars');
+      ROS_SPARE_VARS=[];
+      for(var x=0;x<morevarsElement.length;x++){
+        ROS_SPARE_VARS.push(morevarsElement.children[x].innerHTML);
+      }
+      localStorage['ROS_VARS']=JSON.stringify(ROS_VARS);
+      localStorage['ROS_SPARE_VARS']=JSON.stringify(ROS_SPARE_VARS);
+      localStorage['VehiclesData']=JSON.stringify(VehiclesData);
+      localStorage['display_flags']=JSON.stringify(display_flags);
+    }
+  }
+  
+  function AddVehicle(){
+    VehiclesData.push(new Vehicle_Config('newVehicle'+VehiclesData.length, '../style/images/ASV_delfim.png', '#FFA500', false, 'newVehicle'+VehiclesData.length, [-1,-1], [-1,-1], 'State', VehiclesData.length));
+    addVehicle(VehiclesData.length-1);
+    LoadValues(false);
+  }
+  
+  function DeleteVehicle(){
+    VehiclesData.splice(VehiclesID,1);
+    for(var i=0;i<VehiclesData.length;i++){
+      if(VehiclesData[i].state_topic_source==VehiclesID){
+        VehiclesData[i].state_topic_source = i;
+      }else if(VehiclesData[i].state_topic_source>VehiclesID){
+        VehiclesData[i].state_topic_source = VehiclesData[i].state_topic_source-1;
+      }
+    }
+    LoadValues(false);
+  }
+
+  /**
+   * Detailed Info about certain variables (Bat, GPS, IMU, etc.)
+   */
+  function DetailedInfo(name, obj){
+    display_flags[name]=obj.checked;
+  }
+
+  function CloseWindow(apply){
+      window.top.postMessage('CHVCONF='+apply, '*');
+  }
+
+  function openFile (textToEncode, contentType) {
+      // For window.btoa (base64) polyfills, see 
+      // https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills
+      var encodedText = window.btoa(textToEncode);
+      var dataURL = 'data:' + contentType + ';base64,' + encodedText;
+      return dataURL; // To open in a new tab/window
+  }
+  
+  function export_Configs(){
+    A=document.createElement('a');
+    str = JSON.stringify(localStorage)
+    txt = openFile(str, 'text/plain');
+    A.href = txt;
+    filename = prompt("Configurations file name", "console_conf");
+    if(filename==null)
+      return;
+    A.download =filename+".conf";
+    A.click();
+  }
+
+// Callback for a new File
+function readBlob(evt) {
+  var file =evt.target.files[0];
+  if (!file) {
+    return;
+  } else if (!file.type.match('text/plain') && !file.type.match('text/xml') && !file.type.match('')) {
+    alert(file.name + " is not a valid text file.");
+  } else {
+    var reader = new FileReader();
+    // If we use onloadend, we need to check the readyState.
+    reader.onloadend = function(ev) {
+      if (ev.target.readyState == FileReader.DONE) { // DONE == 2
+        import_Configs(ev.target.result);
+      }
+    };
+    reader.readAsBinaryString(file);
+  }
+}
+
+  function import_Configs(inTxt){
+    var A=JSON.parse(inTxt);
+    for(var i in A){
+      localStorage[i]=A[i];
+    }
+    
+    // Clear vehicle path when importing
+    for(var i=0;i<VehiclesData.length;i++)
+    {
+      VehiclesData[i].VehiclePath.x = [];
+      VehiclesData[i].VehiclePath.y = [];
+      VehiclesData[i].VehiclePath.z = [];
+      VehiclesData[i].VehiclePath.z_time = [];
+      VehiclesData[i].VehiclePath.alt = [];
+      VehiclesData[i].received_var = undefined;
+      VehiclesData[i].GPS_X = 0;
+      VehiclesData[i].GPS_Y = 0;
+    }
+    
+    localStorage.VehiclesData = JSON.stringify(VehiclesData);
+
+    location.reload();
+    //window.opener.location.reload();
+    //parent.location.reload();
+    //window.parent.location.href = window.parent.location.href;
+    //alert("The configurations file was loaded, reboot console to apply changes!");
+  }
+  </script>
+</head>
+<body onload="LoadValues(true);">
+  <div id="wrapper">
+    <style scoped>
+
+        .button-success,
+        .button-error,
+        .button-warning,
+        .button-secondary {
+            color: white;
+            border-radius: 4px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-success {
+            background: rgb(28, 184, 65); /* this is a green */
+        }
+
+        .button-error {
+            background: rgb(202, 60, 60); /* this is a maroon */
+        }
+
+        .button-warning {
+            background: rgb(223, 117, 20); /* this is an orange */
+        }
+
+        .button-secondary {
+            background: rgb(66, 184, 221); /* this is a light blue */
+        }
+
+    </style>
+    <h1>Vehicle Configuration</h1>
+
+<!--     <form class="pure-form">
+    <legend>Select Vehicle</legend>
+    </form> -->
+    <form id="vehicle_select" class="pure-form">
+      
+      <!--<input id='1' type="radio" name="veiculo" value="RED" checked onclick="chVeiculo(this);"/> RED
+      <input id='2' type="radio" name="veiculo" value="BLACK" onclick="chVeiculo(this);"/> BLACK
+      <input id='3' type="radio" name="veiculo" value="YELLOW" onclick="chVeiculo(this);"/> YELLOW
+      <input id='4' type="radio" name="veiculo" value="DIVER" onclick="chVeiculo(this);"/> DIVER
+      <input id='5' type="radio" name="veiculo" value="DELFIM" onclick="chVeiculo(this);"/> DELFIM-->
+    </form>
+
+    <form class="pure-form">
+      <label for="addvehicle">
+        <input id='addvehicle' type='button' onclick="AddVehicle();" value='Add Vehicle' class='pure-button pure-button-primary'> 
+      </label>
+      <label for="delvehicle">
+        <input id="delvehicle" type='button' onclick="DeleteVehicle();" value='Delete Vehicle' class='button-error pure-button'>
+      </label>
+
+      <legend>Graphics</legend>
+        <label for="toggleDisplay">
+          Display
+          <input id="toggleDisplay" type="checkbox" onchange="onChangeValues(this);">
+        </label>
+        <img id="vehicle_image" height="33px" src="../style/images/AUVm.png"/>   <input type='file' onchange="readFile(this);" value='Select' class="pure-button">
+        <label for="toggleIcon">
+            Disable Icon 
+            <input id="toggleIcon" type="checkbox" onchange="onChangeValues(this);">
+        </label>
+        <br>
+        Path Color: <input type="color" id="pathcolor" name="pathcolor" value="#ff0000" onchange="onChangeValues(this);">
+          <label for="toggleTrailType">
+            Path Points 
+            <input id="toggleTrailType" type="checkbox" onchange="onChangeValues(this);">
+          </label>
+      <legend>Vehicle Identification</legend>
+      <div class="pure-g">
+        <div class="pure-u-1 pure-u-md-1-3">
+          <label for="toggleActive">
+            Active
+            <input id="toggleActive" type="checkbox" onchange="onChangeValues(this);">
+          </label>
+        </div>
+        <div class="pure-u-1 pure-u-md-1-3">
+          <label for="vehicle_name">
+            Vehicle Name
+            <input id="vehicle_name" type="text" size=11 value="mred" onchange="onChangeValues(this)" class='pure-input'>
+          </label>
+        </div>
+        <div class="pure-u-1 pure-u-md-1-3">
+          <label for="txtIP">
+            Vehicle IP
+            <input id="txtIP" type="tel" size=11 value="192.168.2.1" onchange="onChangeValues(this)">
+          </label>
+        </div>
+      </div>
+    </form>
+    <form class="pure-form pure-form-aligned">
+      <legend> Waypoint Configuration </legend>
+      &nbsp;ctrl+alt+j <input id="XJ" type="tel" size=10 value="-1" onchange="onChangeValues(this)"><input id="YJ" type="tel" size=10 value="-1"onchange="onChangeValues(this)">
+      <br>
+      ctrl+alt+k <input id="XK" type="tel" size=10 value="-1" onchange="onChangeValues(this)"><input id="YK" type="tel" size=10 value="-1"onchange="onChangeValues(this)">
+    </form>
+
+    <form class="pure-form">
+      <legend> Variables to ask </legend>
+      <input id="newtopic" type="tel" size=20 value="State" onchange="">
+      <input type='button' onclick="addNewVar();" value='Add' class='pure-button pure-button-primary'><br>
+      <table border="3">
+        <tr>
+          <td>
+            Ask
+          </td>
+          <td>
+          </td>
+          <td>
+            Spare
+          </td>
+          <td>
+            Detailed Info
+          </td>
+        </tr>
+        <tr>
+          <td style="vertical-align:middle">
+            <select id="varstoask" size="14" width="200px" style="width: 200px"  multiple>
+            </select>
+            <!--<p><input type='button' onclick=";" value='Delete'></p>-->
+          </td>
+          <td style="vertical-align:middle">        
+            <input type='button' onclick="addforaskvars();" value='<<' class='pure-button'><BR>
+            <input type='button' onclick="delfromaskvars();" value='>>' class='pure-button'>
+          </td>
+          <td style="vertical-align:middle">
+            <select id="morevars" size="14" width="200px" style="width: 200px" multiple>
+            </select>
+          </td>
+          <td style="vertical-align:middle">
+            <div class="ck-button" id="divtoggleGPS">
+              <label for="toggleGPS">
+                <input class="button-success pure-button" id="toggleGPS" type="checkbox" onchange="DetailedInfo('GPS',this);"> <span> GPS </span>
+              </label>
+            </div>
+            <br>
+            <div class="ck-button" id="divtoggleIMU">
+              <label for="toggleIMU">
+                <input id="toggleIMU" type="checkbox" onchange="DetailedInfo('IMU',this);"> <span> IMU </span>
+              </label>
+            </div>
+            <br>
+            <div class="ck-button" id="divtoggleBattery">
+              <label for="toggleBattery">
+                <input id="toggleBattery" type="checkbox" onchange="DetailedInfo('Battery',this);"> <span> Battery </span>
+              </label>
+            </div>
+            <br>
+            <div class="ck-button" id="divtoggleThrusters">
+              <label for="toggleThrusters">
+                <input id="toggleThrusters" type="checkbox" onchange="DetailedInfo('Thrusters',this);"> <span> Thrusters </span>
+              </label>
+            </div>
+            <br>
+            <div class="ck-button" id="divtogglePressure">
+              <label for="togglePressure">
+                <input id="togglePressure" type="checkbox" onchange="DetailedInfo('Pressure',this);"> <span> Pressure </span>
+              </label>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <legend>Position Variable</legend>
+      <p>
+        <input type='button' onclick="SelectList();" value='Select from list' class='pure-button pure-button-primary'>
+        Topic Name for Position:<input id="Postopic" type="tel" size=30 value="State" onchange="onChangeValues(this)" disabled>
+        from:
+        <select id="vehiclesource" onchange="onChangeValues(this)">
+            <!--<option value="vehicle1">mred</option>
+           <option value="vehicle2">mblack</option>-->
+        </select>
+      </p>
+      
+      <legend>Configurations File</legend>
+      <input type='button' onclick="document.getElementById('Conf_file_up').click();" value='Import' class='pure-button'>
+      <input type="file" id="Conf_file_up" class="pure-button pure-button-primary" style="display:none"/> 
+      <input type='button' onclick="export_Configs();" value='Export' class='pure-button pure-button-primary'> <br>
+
+      <input type='button' onclick="CloseWindow(false);" value='Close' class='pure-button'>
+      <input type='button' onclick="SaveValues(); CloseWindow(true);" value='Apply &amp; Close' class='pure-button pure-button-primary'>
+    </form>
+  </div>
+</body>
+  <script>
+  document.getElementById('Conf_file_up').addEventListener('change', readBlob, false);
+  </script>
+</html>

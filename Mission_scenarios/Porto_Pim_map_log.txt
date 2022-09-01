@@ -1,0 +1,153 @@
+Project: C:\umdtask\Porto_Pim_Bay\Porto_Pim_map.umd
+Log begin......v=6.87
+Now time is:7/29/2014 1:53:10 PM
+
+[MapsType]
+MapsType=1
+
+Left Longitude  input= -28.63332
+Right Longitude input= -28.625402
+Top Latitude    input= 38.526606
+Bottom Latitude input= 38.522695
+
+MinX = 220443
+MinY = 201256
+MaxX = 220455
+MaxY = 201263
+
+Left Longitude  download=-28.6338043212891
+Right Longitude download=-28.6248779296875
+Top Latitude    download=38.5266816172925
+Bottom Latitude download=38.5223840868774
+
+All images' scope information are saved to C:\umdtask\Porto_Pim_Bay\Porto_Pim_map_list.txt
+
+Total count of images would be downloaded: 104
+
+Download threads count: 8
+
+Zoom level: 19
+
+path: C:\umdtask\Porto_Pim_Bay\
+
+Start downloading...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T8:seq=7,gs_220443_201262_19.jpg OK
+T6:seq=5,gs_220443_201260_19.jpg OK
+T2:seq=1,gs_220443_201256_19.jpg OK
+T5:seq=4,gs_220443_201259_19.jpg OK
+T4:seq=3,gs_220443_201258_19.jpg OK
+T3:seq=2,gs_220443_201257_19.jpg OK
+T1:seq=8,gs_220443_201263_19.jpg OK
+T7:seq=6,gs_220443_201261_19.jpg OK
+T8:seq=15,gs_220444_201262_19.jpg OK
+T2:seq=9,gs_220444_201256_19.jpg OK
+T6:seq=13,gs_220444_201260_19.jpg OK
+T5:seq=12,gs_220444_201259_19.jpg OK
+T1:seq=16,gs_220444_201263_19.jpg OK
+T4:seq=11,gs_220444_201258_19.jpg OK
+T3:seq=10,gs_220444_201257_19.jpg OK
+T7:seq=14,gs_220444_201261_19.jpg OK
+T8:seq=23,gs_220445_201262_19.jpg OK
+T2:seq=17,gs_220445_201256_19.jpg OK
+T5:seq=20,gs_220445_201259_19.jpg OK
+T6:seq=21,gs_220445_201260_19.jpg OK
+T4:seq=19,gs_220445_201258_19.jpg OK
+T1:seq=24,gs_220445_201263_19.jpg OK
+T3:seq=18,gs_220445_201257_19.jpg OK
+T7:seq=22,gs_220445_201261_19.jpg OK
+T8:seq=31,gs_220446_201262_19.jpg OK
+T2:seq=25,gs_220446_201256_19.jpg OK
+T5:seq=28,gs_220446_201259_19.jpg OK
+T6:seq=29,gs_220446_201260_19.jpg OK
+T4:seq=27,gs_220446_201258_19.jpg OK
+T3:seq=26,gs_220446_201257_19.jpg OK
+T1:seq=32,gs_220446_201263_19.jpg OK
+T7:seq=30,gs_220446_201261_19.jpg OK
+T8:seq=39,gs_220447_201262_19.jpg OK
+T2:seq=33,gs_220447_201256_19.jpg OK
+T4:seq=35,gs_220447_201258_19.jpg OK
+T1:seq=40,gs_220447_201263_19.jpg OK
+T3:seq=34,gs_220447_201257_19.jpg OK
+T6:seq=37,gs_220447_201260_19.jpg OK
+T5:seq=36,gs_220447_201259_19.jpg OK
+T7:seq=38,gs_220447_201261_19.jpg OK
+T8:seq=47,gs_220448_201262_19.jpg OK
+T2:seq=41,gs_220448_201256_19.jpg OK
+T4:seq=43,gs_220448_201258_19.jpg OK
+T6:seq=45,gs_220448_201260_19.jpg OK
+T3:seq=42,gs_220448_201257_19.jpg OK
+T5:seq=44,gs_220448_201259_19.jpg OK
+T1:seq=48,gs_220448_201263_19.jpg OK
+T7:seq=46,gs_220448_201261_19.jpg OK
+T8:seq=55,gs_220449_201262_19.jpg OK
+T2:seq=49,gs_220449_201256_19.jpg OK
+T4:seq=51,gs_220449_201258_19.jpg OK
+T6:seq=53,gs_220449_201260_19.jpg OK
+T3:seq=50,gs_220449_201257_19.jpg OK
+T1:seq=56,gs_220449_201263_19.jpg OK
+T5:seq=52,gs_220449_201259_19.jpg OK
+T7:seq=54,gs_220449_201261_19.jpg OK
+T8:seq=63,gs_220450_201262_19.jpg OK
+T2:seq=57,gs_220450_201256_19.jpg OK
+T4:seq=59,gs_220450_201258_19.jpg OK
+T6:seq=61,gs_220450_201260_19.jpg OK
+T3:seq=58,gs_220450_201257_19.jpg OK
+T1:seq=64,gs_220450_201263_19.jpg OK
+T5:seq=60,gs_220450_201259_19.jpg OK
+T7:seq=62,gs_220450_201261_19.jpg OK
+T8:seq=71,gs_220451_201262_19.jpg OK
+T2:seq=65,gs_220451_201256_19.jpg OK
+T4:seq=67,gs_220451_201258_19.jpg OK
+T3:seq=66,gs_220451_201257_19.jpg OK
+T6:seq=69,gs_220451_201260_19.jpg OK
+T1:seq=72,gs_220451_201263_19.jpg OK
+T5:seq=68,gs_220451_201259_19.jpg OK
+T7:seq=70,gs_220451_201261_19.jpg OK
+T8:seq=79,gs_220452_201262_19.jpg OK
+T2:seq=73,gs_220452_201256_19.jpg OK
+T4:seq=75,gs_220452_201258_19.jpg OK
+T3:seq=74,gs_220452_201257_19.jpg OK
+T5:seq=76,gs_220452_201259_19.jpg OK
+T7:seq=78,gs_220452_201261_19.jpg OK
+T1:seq=80,gs_220452_201263_19.jpg OK
+T6:seq=77,gs_220452_201260_19.jpg OK
+T8:seq=87,gs_220453_201262_19.jpg OK
+T2:seq=81,gs_220453_201256_19.jpg OK
+T4:seq=83,gs_220453_201258_19.jpg OK
+T3:seq=82,gs_220453_201257_19.jpg OK
+T7:seq=86,gs_220453_201261_19.jpg OK
+T5:seq=84,gs_220453_201259_19.jpg OK
+T1:seq=88,gs_220453_201263_19.jpg OK
+T6:seq=85,gs_220453_201260_19.jpg OK
+T8:seq=95,gs_220454_201262_19.jpg OK
+T2:seq=89,gs_220454_201256_19.jpg OK
+T4:seq=91,gs_220454_201258_19.jpg OK
+T3:seq=90,gs_220454_201257_19.jpg OK
+T7:seq=94,gs_220454_201261_19.jpg OK
+T1:seq=96,gs_220454_201263_19.jpg OK
+T5:seq=92,gs_220454_201259_19.jpg OK
+T6:seq=93,gs_220454_201260_19.jpg OK
+T8:seq=103,gs_220455_201262_19.jpg OK
+T2:seq=97,gs_220455_201256_19.jpg OK
+T4:seq=99,gs_220455_201258_19.jpg OK
+T3:seq=98,gs_220455_201257_19.jpg OK
+T7:seq=102,gs_220455_201261_19.jpg OK
+T5:seq=100,gs_220455_201259_19.jpg OK
+T1:seq=104,gs_220455_201263_19.jpg OK
+T6:seq=101,gs_220455_201260_19.jpg OK
+T8 Finished.
+T2 Finished.
+T4 Finished.
+T3 Finished.
+T5 Finished.
+T1 Finished.
+T7 Finished.
+T6 Finished.
+
+--------------------------------
+Task Stoped!
+
+Now time:7/29/2014 1:53:25 PM
+
+Log file has been saved as C:\umdtask\Porto_Pim_Bay\Porto_Pim_map_log.txt

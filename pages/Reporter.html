@@ -1,0 +1,580 @@
+<html lang="en">
+<head>
+	<title>Vehicle's Reporter</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style>
+		* { margin: 0; padding: 0; }
+		html { height: 100%; }
+		body {font-size: 62.5%; font-family: Arial, Tahoma, sans-serif; color: #343434;}
+		p { font-size: 1.3em; line-height: 1.5em; margin-bottom: 10px; }
+		a { text-decoration: none; }
+		img { border: 0; }
+	</style>
+	<link href="../style/reporter_table.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="../scripts/basic.js"></script>
+	<!--<script type="text/javascript" src="scripts/Medusa_MOOS_ROS.js"></script>-->
+	<script type="text/javascript">
+		function addClass( classname, element ) {
+		    var cn = element.className;
+		    //test for existance
+		    if( cn.indexOf( classname ) != -1 ) {
+		        return;
+		    }
+		    //add a space if the element already has class
+		    if( cn != '' ) {
+		        classname = ' '+classname;
+		    }
+		    element.className = cn+classname;
+		}
+
+		function removeClass( classname, element ) {
+		    var cn = element.className;
+		    var rxp = new RegExp( "\\s?\\b"+classname+"\\b", "g" );
+		    cn = cn.replace( rxp, '' );
+		    element.className = cn;
+		}
+		var gitLogInputTopic="reporter/gitlog_req", gitLogOutputTopic="reporter/gitlog_output";
+		var reportInputTopic="reporter/report_req", reportOutputTopic="reporter/report_output";
+		var gitPullTopic="git/pull";
+		var ROS_VARS=[gitLogOutputTopic, reportOutputTopic];
+		var VCurr=1;
+		/*console.log("gitVersion_v is hardcoded");
+		gitVersion_v[0]=new Array(1,2,3,4,5);
+		//gitVersion_v[1]=new Array(1,2,3,4,5);
+		//gitVersion_v[2]=new Array(1,2,3,4,5);
+		
+		gitVersion_v[1]=new Array(1,4,3,5,4);
+		gitVersion_v[2]=new Array(1,2,2,4,5);*/
+
+		if (localStorage.VehiclesData) {
+		  VehiclesData = JSON.parse(localStorage.VehiclesData);
+		}
+		var gitVersion_v= new Array(VehiclesData.length);
+		function single_thruster_data(Speed, Current, Temperature) {
+		  this.Speed = Speed;
+		  this.Current = Current;
+		  this.Temperature = Temperature;
+		  this.label = 'Thrusters';
+		}
+		var single_v_report={pressure: {}, thrusters: [new single_thruster_data(), new single_thruster_data(),new single_thruster_data(),new single_thruster_data()], gps: {}, imu: {}, sf: {}, bat: {}, leak: [], altimeter: {}, bags: {} };
+		var dic_report_labels={pressure: 'Pressure', thrusters: 'Thrusters', gps: 'GPS', imu: 'IMU', sf: 'Safety Feature', bat: 'BatMonit', leak: 'Leaks', altimeter: 'Altimeter', bags: 'Bags'};
+		var reporting_items=[];
+		var reporting_labels=[];
+		for(var i in dic_report_labels){
+			reporting_items.push(dic_report_labels[i]);
+			reporting_labels.push(i);
+		}
+		var report_v =[];
+		for(var i=0; i<VehiclesData.length; i++){
+			report_v.push(single_v_report);
+		}
+		var report_v_raw = new Array(VehiclesData.length);
+
+		var xmlhttp = new Array();
+		//Http Requester
+		if (window.XMLHttpRequest)
+		      {// code for IE7+, Firefox, Chrome, Opera, Safari
+		        for (var i = 0; i < VehiclesData.length; i++) {
+		        	if(!VehiclesData[i].active) continue;
+		            xmlhttp.push(new XMLHttpRequest());
+		        }
+		      }
+		else
+		{// code for IE6, IE5
+		    for (var i = 0; i < VehiclesData.length; i++) {
+		        if(!VehiclesData[i].active) continue;
+		        xmlhttp.push(new ActiveXObject("Microsoft.XMLHTTP"));
+		    }
+		}
+		var requestTimer = new Array();
+		for(var j=0; j<VehiclesData.length;j++){
+		    if(!VehiclesData[j].active) continue;
+			if (xmlhttp[j])
+				xmlhttp[j].onreadystatechange = function() {		
+					for(var i=0; i<VehiclesData.length;i++){
+						if ((xmlhttp[i] && xmlhttp[i].readyState != 4) || !VehiclesData[i].active)  { continue; }
+						clearTimeout(requestTimer[i]); 
+						if(i==(VCurr-1))
+							readXML(xmlhttp[i],i,true);
+						else
+							readXML(xmlhttp[i],i,false);
+				}};
+		}
+		var repoTimer=0;
+		function Init(){
+			setInterval("askIMPVARS();",1000);
+			repoTimer=setInterval("PubMessage('"+gitLogInputTopic+"', 'std_msgs/String', '" + repos_to_ask.join(" ") + "');",1000); //ask the i
+			//pullTimer=setInterval("PubMessage('"+gitPullTopic+"', 'std_msgs/String', '" + repos_to_ask.join(" ") + "');",1000); //ask the i
+			reportTimer=setInterval("PubMessage('"+reportInputTopic+"', 'std_msgs/Bool', 'false');",15000); //ask the i
+			setInterval("compareSoftwareVersion(repos_to_ask, gitVersion_v);",1000);
+			var temp_reporting_items=[];
+			createTable('gitTable','Repositories',"git_col", repos_to_ask);
+			createTable('reportTable','Reporting items', "report_col", undefined, dic_report_labels);
+		}
+
+		function createTable(tableID, title, data_name, var_list, var_list_dic){
+			//creating header rows
+			var table = document.getElementById(tableID);
+  			var row_header = document.createElement('tr');
+  			var thead_header = document.createElement('thead');
+			var col_repos=document.createElement('th');
+			col_repos.innerHTML=title;
+			thead_header.appendChild(row_header);
+			table.appendChild(thead_header);
+			row_header.appendChild(col_repos);
+
+			// Create 1 column per active vehicle
+			for(var i=0; i<VehiclesData.length;i++){
+				if(!VehiclesData[i].active) continue;
+				var temp=document.createElement('th');
+				temp.innerHTML=VehiclesData[i].ip;
+				row_header.appendChild(temp);
+			}
+
+			// Create rows of the table
+			var tbody=document.createElement('tbody');
+			table.appendChild(tbody);
+
+			var flag_dic=!var_list ? true : false;
+			if(flag_dic){
+				var_list=[];
+				for(var i in var_list_dic){
+					var_list.push(var_list_dic[i]);
+				}
+			}
+
+			// creating content rows
+			for(var i=0; i<var_list.length;i++){
+				//creating first column
+				var repo_name=var_list[i];
+				var temp_r=document.createElement('tr');
+				temp_r.setAttribute('class', i%2==0?'alt':'normal');
+				var temp_d=document.createElement('td');
+				temp_d.innerHTML=repo_name;
+				
+				temp_r.appendChild(temp_d);
+
+				//creating content cells
+				for(var j=0; j<VehiclesData.length;j++){
+					if(!VehiclesData[j].active) continue;
+					var temp_d=document.createElement('td');
+					temp_d.innerHTML="loading";
+					temp_d.setAttribute("name",data_name+j);
+					if(flag_dic){
+						temp_d.setAttribute("topic",reporting_labels[i]);
+					}
+					
+					temp_r.appendChild(temp_d);
+				}
+				tbody.appendChild(temp_r);
+			}
+		}
+
+		function compareSoftwareVersion(list, data){
+			var flag_ok=true; // software is in same version everywhere
+			for(var j=0; j<list.length; j++){
+				var reference_time=null;
+				var temp_vec=new Array(); // 1 vector for each repo
+				for(var i=0;i<VehiclesData.length;i++){
+					if(!data[i] || !VehiclesData[i].active) continue;
+					aux=data[i][j];
+					if(temp_vec.length==0){
+						temp_vec.push({time:aux, vehicles: [i]});
+					}else{
+						var old_element=false;
+						for(var kk=0; kk<temp_vec.length; kk++){
+							if(aux == temp_vec[kk].time){
+								temp_vec[kk].vehicles.push(i);
+								old_element=true;
+							}
+						}
+						if(!old_element){
+							temp_vec.push({time:aux, vehicles: [i]});
+							flag_ok=false;
+						}
+					}
+				}
+				temp_vec.sort(function(a,b){return b.time-a.time});
+				temp_vec.splice(0,1); // take the most recent one
+				//col_handle=document.getElementsByName("git_col"+j);
+				row_handle=document.getElementById("gitTable").rows[j+1].children;
+				for(var i=0; i<temp_vec.length; i++){
+					var str_aux=""
+					for(var k=0; k<temp_vec[i].vehicles.length; k++){
+						vehicle_id=temp_vec[i].vehicles[k];
+						//row_handle[vehicle_id+1].setAttribute("style","font-weight: bold; color:red");
+						addClass('nok',row_handle[vehicle_id+1]);
+					}
+				}
+			}
+/*			table_handle=document.getElementById("gitTable");
+			p_handle=document.getElementById("gitP");
+			var hidden_style="visibility: hidden; height: 0px";
+			var visible_style="visibility: visible";
+			if(flag_ok){
+				table_handle.setAttribute("style",hidden_style);
+				p_handle.setAttribute("style",visible_style);
+			}else{
+				table_handle.setAttribute("style",visible_style);
+				p_handle.setAttribute("style",hidden_style);
+			}*/
+		}
+		function report_detail(cell, detailed_info, msg){
+			if(detailed_info.length===0){
+				cell.innerHTML='ok';
+				var print_msg='';
+				for(var i in msg){
+					print_msg+=i+": "+msg[i] +'\n';
+				}
+				cell.title=print_msg;
+				removeClass('nok',cell);
+			}else{
+				var temp='';
+				var len=detailed_info.length;
+				for(var i=0; i<len; i++){
+					temp+=detailed_info[i];
+					if(i!=(len-1)){
+						temp+=", ";
+					}
+				}
+				cell.title=temp;
+				cell.innerHTML='nok';
+				addClass('nok',cell);
+			}
+		}
+
+		function compareReport(list, vdata, dic, vid){
+			var col=document.getElementsByName("report_col"+vid);
+			for(var key in vdata){
+				var ind=reporting_labels.indexOf(key);
+				var data=vdata[key];
+				var reporting=[];
+				if(key==="pressure"){
+					if(isNaN(data.Inside_Pressure)){
+						reporting.push('No data');
+					}
+					if( data.Inside_Pressure > 700){
+						reporting.push('Inside Pressure > 700');
+					}
+					if(data.Inside_Temp > 60){
+						reporting.push('Inside_Temp > 60');
+					}
+					if(data.Outside_Pressure < 900){
+						reporting.push('Outside_Pressure < 900');
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="thrusters"){
+					for(var i=0; i< data.length; i++){
+						if(isNaN(data[i].Speed)){
+							reporting.push('No data');
+						}
+						if(data[i].Speed <= 0){
+							reporting.push('Thruster '+i+': Speed problem');
+						}else if(data[i].Temperature > 40){
+							reporting.push('Thruster '+i+': Temperature problem');
+						}
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="gps"){
+					if( isNaN(data.latitude)){
+						reporting.push('No data');
+					}
+					if(data.satellites < 5){
+						reporting.push('Satellites < 5');
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="imu"){
+					if(isNaN(data.Yaw)){
+						reporting.push('No data');
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="sf"){
+					if(data.data === 1){
+						reporting.push('Safety Feature Off');
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="bat"){
+					if(isNaN(data.Actual_Charge)){
+						reporting.push('No data');
+					}
+					if(data.Actual_Charge<1){ //TODO: Change threshold
+						reporting.push('Battery level');
+					}
+					if(data.Number_of_Packs<2){
+						reporting.push('Number_of_Packs<2');
+					}
+					if(data.Temperature>50){
+						reporting.push('Temperature>50');
+					}
+					if(data.max_Cell<3500){
+						reporting.push('max_Cell<3500');
+					}
+					if(data.min_Cell<3400){
+						reporting.push('min_Cell<3400');
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="leak"){
+					for(var i=0; i<data.length; i++){
+						if(data[i]){
+							reporting.push('Leak');
+						}
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="altimeter"){
+					if(isNaN(data.data) === 0){
+						reporting.push('Altimeter not working');
+					}
+					report_detail(col[ind], reporting, data);
+				}else if(key==="bags"){
+					if(data.data === false){
+						reporting.push('Bags not recording');
+					}
+					report_detail(col[ind], reporting, data);
+				}
+			}
+		}
+
+		function askIMPVARS(){
+			for(var j=0; j<VehiclesData.length;j++){
+				if (!xmlhttp[j] || !VehiclesData[j].active)
+					continue;
+
+				var VehicleURL = getVehicleURL(j);
+
+				xmlhttp[j].message = "\nError: Maybe server is down!";
+				if(j==(VCurr-1)){
+					xmlhttp[j].open("GET",VehicleURL+"VAR%20"+ROS_VARS.join("%20")+"%20", true); //+VARS.join("%20")+"%20"+STRINGS.join("%20"),true); // Server stuck in a loop.
+				}else{
+					xmlhttp[j].open("GET",VehicleURL+"VAR%20"+ROS_VARS.join("%20"),true); // Server stuck in a loop.
+				}
+				
+				requestTimer[j] = setTimeout(function() {
+					for(var i=0; i<VehiclesData.length;i++)
+						if(!VehiclesData[i].active) continue;
+						if (xmlhttp[i] && xmlhttp[i].readyState != 4){
+							xmlhttp[i].abort();
+						}
+				}, 700);
+				if(xmlhttp[j])
+					xmlhttp[j].send();
+			}
+		}
+
+		function readXML(xmlhttp,vehicle, show) {
+			if(xmlhttp && xmlhttp.readyState == 4 && xmlhttp.status==200){	
+				xmlDoc=xmlhttp.responseXML;
+				if (xmlDoc){
+					CURRENT_KEYS=new Array();
+					// ROS Code
+					if(xmlDoc.getElementsByTagName("ROSMessage").length!=0){
+						var rosmsg = xmlDoc.getElementsByTagName("ROSMessage");
+						var rosn   = rosmsg.length;
+						for(var i=0;i<rosn;i++){
+							var var_elements = rosmsg[i].getElementsByTagName("VAR");
+							for(var j=0;j<var_elements.length;j++){
+								if(rosmsg[i].attributes.getNamedItem("name").value == gitLogOutputTopic.replace(/\//gi,"_")){
+									gitVersion_v[vehicle] = rosmsg[i].getElementsByTagName("DOUBLE")[j].textContent;
+									if(gitVersion_v[vehicle]){
+										gitVersion_v[vehicle]=gitVersion_v[vehicle].split('\n');
+										gitVersion_v[vehicle].splice(-1);
+										gitVersion_v[vehicle]=gitVersion_v[vehicle].map(function(item) { return parseFloat(item)});
+										col_handle=document.getElementsByName("git_col"+vehicle);
+										for(var kk=0; kk<repos_to_ask.length; kk++){
+											col_handle[kk].innerHTML=gitVersion_v[vehicle][kk];
+										}
+									}
+								}else if(rosmsg[i].attributes.getNamedItem("name").value == reportOutputTopic.replace(/\//gi,"_")){
+									report_v_raw[vehicle] = rosmsg[i];
+									var vdata =report_v[vehicle];
+									var children=rosmsg[i].children;
+									for(var k=0; k<children.length; k++){
+										child=children[k];
+										if(child.tagName ==="VAR"){ //It is a vector of msgs: Thruster or leak
+											var label=child.getElementsByTagName("KEY")[0].innerHTML;
+											if(label ==="thrusters"){
+												var els=child.children[1].innerHTML.split(",");
+												//Cycle for each thruster
+												for(var jj=0; jj<els.length; jj++){
+													var el=els[jj].split("\n");
+													//Cycle for each thruster line of data
+													for(var kk=0; kk<el.length; kk++){
+														var data=parseFloat(el[kk].split(':')[1]);
+														if(el[kk].indexOf('Speed')!=-1){
+															vdata.thrusters[jj].Speed=data;
+														}else if(el[kk].indexOf('Current')!=-1){
+															vdata.thrusters[jj].Current=data;
+														}else if(el[kk].indexOf('Temperature')!=-1){
+															vdata.thrusters[jj].Temperature=data;
+														}
+													}
+												}												
+											}else if(label==="leaks"){
+												var els=child.children[1].innerHTML.split(",");
+												//Cycle for each leak
+												for(var jj=0; jj<els.length; jj++){
+													var el=els[jj].split("\n");
+													//Cycle for each leak line of data
+													for(var kk=0; kk<el.length; kk++){
+														var parsed=el[kk].split(':')[1];
+														parsed=parsed.indexOf(']')!=-1 ? parsed.substring(0, parsed.length - 1) : parsed;
+														var data= parsed.trim()==="True" ? true : false;
+														if(el[kk].indexOf('data')!=-1){
+															vdata.leak[jj]=data;
+														}
+													}
+												}
+											}
+										}else if(child.tagName=="ROSMessage"){ // Primitive msgs
+											var msgdata=child.getElementsByTagName("VAR");
+											if(child.attributes.name.value==="pressure"){
+												var sensor=vdata.pressure;
+												for(var ii=0; ii<msgdata.length; ii++){
+													var el=msgdata[ii];
+													var data=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+													var tag=el.getElementsByTagName("KEY")[0].innerHTML;
+													if(tag === "Inside_Pressure"){
+														sensor.Inside_Pressure=data;
+													}else if(tag === "Outside_Pressure"){
+														sensor.Outside_Pressure=data;
+													}else if(tag === "Inside_Temp"){
+														sensor.Inside_Temp=data;
+													}else if(tag === "Outside_Temp"){
+														sensor.Outside_Temp=data;
+													}
+												}
+											}else if(child.attributes.name.value==="gps"){
+												var sensor=vdata.gps;
+												for(var ii=0; ii<msgdata.length; ii++){
+													var el=msgdata[ii];
+													var data=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+													var tag=el.getElementsByTagName("KEY")[0].innerHTML;
+													if(tag === "latitude"){
+														sensor.latitude=data;
+													}else if(tag === "longitude"){
+														sensor.longitude=data;
+													}else if(tag === "mode"){
+														sensor.mode=data;
+													}else if(tag === "satellites"){
+														sensor.satellites=data;
+													}
+												}
+											}else if(child.attributes.name.value==="imu"){
+												var sensor=vdata.imu;
+												for(var ii=0; ii<msgdata.length; ii++){
+													var el=msgdata[ii];
+													var data=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+													var tag=el.getElementsByTagName("KEY")[0].innerHTML;
+													if(tag === "Roll"){
+														sensor.Roll=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+													}else if(tag === "Pitch"){
+														sensor.Pitch=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+													}else if(tag === "Yaw"){
+														sensor.Yaw=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+													}
+												}
+											}else if(child.attributes.name.value==="safety_feature"){
+												var sensor=vdata.sf;
+												var el=msgdata[0];
+												var tag=el.getElementsByTagName("KEY")[0].innerHTML;
+												if(tag === "data"){
+													sensor.data=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+												}
+											}else if(child.attributes.name.value==="bat"){
+												var sensor=vdata.bat;
+												for(var ii=0; ii<msgdata.length; ii++){
+													var el=msgdata[ii];
+													var data=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+													var tag=el.getElementsByTagName("KEY")[0].innerHTML;
+													if(tag === "Number_of_Packs"){
+														sensor.Number_of_Packs=data;
+													}else if(tag === "Current"){
+														sensor.Current=data;
+													}else if(tag === "min_Cell"){
+														sensor.min_Cell=data;
+													}else if(tag === "max_Cell"){
+														sensor.max_Cell=data;
+													}else if(tag === "Actual_Charge"){
+														sensor.Actual_Charge=data;
+													}else if(tag === "Temperature"){
+														sensor.Temperature=data;
+													}
+												}
+											}else if(child.attributes.name.value==="altimeter"){
+												var sensor=vdata.altimeter;
+												var el=msgdata[0];
+												var tag=el.getElementsByTagName("KEY")[0].innerHTML;
+												if(tag === "data"){
+													sensor.data=parseFloat(el.getElementsByTagName("DOUBLE")[0].innerHTML);
+												}
+											}else if(child.attributes.name.value==="bags"){
+												var sensor=vdata.bags;
+												var el=msgdata[0];
+												var tag=el.getElementsByTagName("KEY")[0].innerHTML;
+												if(tag === "data"){
+													sensor.data=el.getElementsByTagName("DOUBLE")[0].innerHTML ==="True" ? true : false;
+												}
+											}
+										}
+									}
+									compareReport(reporting_items, vdata, dic_report_labels, vehicle);
+								}
+							}
+						}
+						localStorage['CURRENT_KEYS']=JSON.stringify(CURRENT_KEYS);
+						xmlhttp.abort();
+						return;
+					}
+				}
+			}
+		}
+		//var repos_to_ask=["medusa_msgs","rof","acomms","handler","morph_msgs", "fake_comm_morph"];
+		var repos_to_ask=["medusa_msgs"];
+		function PubMessage(topic, type_topic, msg){
+			var j=0;
+			for(var i=0; i<VehiclesData.length; i++){
+				if(!VehiclesData[i].active) continue;
+				xmlhttp[j].message = '\nError: Sending STOP signal! Try again later!';
+				//xmlhttp[j].abort();
+
+		        var VehicleURL = getVehicleURL(i);
+
+				xmlhttp[j].open("GET",VehicleURL+"RSET%20"+topic+" "+type_topic+" "+msg,true); // Server stuck in a loop.
+				var requestTimer = setTimeout(function() {
+					if(i<VehiclesData.length)
+						xmlhttp[j].abort();
+				}, 500);
+				xmlhttp[j].send();
+				j++;
+			}
+			if(topic=== gitLogInputTopic){
+				window.clearInterval(repoTimer);
+			}else if(topic === gitPullTopic){
+				window.clearInterval(pullTimer);
+			}else if(topic === reportInputTopic){
+				window.clearInterval(reportTimer);
+			}
+		}
+	</script>
+</head>
+
+<body onLoad="Init();">
+<center>
+<h1>Reporter</h1>
+</center>
+
+<h1>Repositories table</h1>
+
+<div id="gitDiv" class="datagrid">
+	<table id="gitTable" cellspacing="0" style="display: ''">
+	</table>
+</div>
+<!-- <p id="gitP" style="font-weight: bold; color: green; display: 'none'"> All repositories are updated</p> -->
+
+<h1>Report table</h1>
+<div id="reportDiv" class="datagrid">
+	<table id="reportTable" cellspacing="0" style="display: ''">
+	</table>
+</div>
+</body>
+</html>

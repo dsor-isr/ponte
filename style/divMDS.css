@@ -1,0 +1,119 @@
+div#divMDeepSea  {
+	position: absolute; 
+	width:250px; 
+	background: rgba(255, 255, 255, 1.0); 
+	z-index: 7;
+	border:1px solid #000000; 
+	overflow: hidden;
+	margin: auto;
+	right: 5;
+	visibility: hidden;
+  /*height: 99vh;*/
+  top: 5;
+  bottom: 5;
+}
+
+#divMDS_cmds {
+  /*overflow: hidden;*/
+  /*margin: auto;
+  right: 0;*/
+  width: 240px;
+  visibility: visible;
+  display: inline-block;
+}
+
+#divMDS_cmds input{
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	/* this will work for QtWebKit in future */
+	-webkit-user-drag: none
+}
+
+#divMDS_cmds input[type=text] {
+  -moz-user-select: text;
+  -webkit-user-select: text;
+}
+
+#divMDS_cmds input[type=button] {
+  border: none;
+  background: #1abc9c;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 6px;
+  width: 100px;
+  color: white;
+  /*margin-left: 25px;*/
+  box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2);
+
+	margin: 0 auto;
+}
+
+textarea#txtMDeepSea_status { 
+	resize:vertical;
+  position:relative;
+  margin-left: 5px;
+  width: 100%; 
+	height: 100%; 
+	max-height:300px; 
+	min-height:50px; 
+	border-style:none;
+	border-color:Transparent;
+	overflow:auto; 
+}
+
+#divMDS_cmds input[type=button]:hover { 
+  transform: translateY(-3px);
+  box-shadow: 0 6px 6px 0 rgba(0,0,0,0.2);
+}
+
+/*.mds_send {
+	float: left;
+}*/
+
+input[type=number].mds_wp {
+	width: 100px;
+	/*border: 1px solid #9e9e9e;*/
+  height: 1.5rem;
+  margin: 0 0 0px 0;
+  text-align: right; 
+}
+
+.mds_wp_enabled {
+  background-color: rgb(191, 255, 197);
+}
+
+#divMDS_cmds span {
+	font-size: 0.9rem;
+	margin-left: 5px;
+}
+
+.mds_separator {
+	color: #9e9e9e;
+	display: block;
+	width: 100%;
+  border-bottom: 1px solid #9e9e9e;
+  margin: 3px 0px 3px 0px;
+}
+
+.mds_container {
+	/*text-align: justify;*/
+	 display: flex; 
+	 justify-content: space-around;
+}
+
+.mds_critical {
+  background: #EF5350 !important;
+}
+
+#mds_pickpoint {
+  position: static;
+  display: inline-block;
+  background-image: url('../style/design_menu/icon-pick-on-map.png');
+  background-repeat: no-repeat;
+  background-size:cover;  
+  width: 25px;
+  height: 25px;
+  padding: 0 0 0 0;
+  margin-left: 0px !important;
+  cursor: hand;
+}

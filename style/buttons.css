@@ -1,0 +1,254 @@
+.buttons_console {
+  border-style: solid;
+  border-width: 1px;
+  padding-top:0;
+  width: 50px;
+  background-size: 100% 100%;
+  cursor: hand;
+}
+
+.buttons_header { height: 50px; }
+
+.buttons_hidden { visibility: hidden; }
+
+#ButtonsBar{
+  position: absolute; /* to strech tt element*/
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  max-width: 572px;
+  top: 0;
+  left: 0;
+  right: 0;
+/*  left: 50%;
+  right: 50%;*/
+  z-index: 10;
+  /*height: 100%;*/
+}
+
+#open_mission {
+  background-image: url('buttons/open_mission.png');
+  display: block;
+  position: relative;
+  cursor: hand;
+}
+
+#open_mission:hover {   cursor: hand; background-image: url('buttons/open_mission_dw.png'); }
+
+#open_mission input {
+  position: absolute;
+  vertical-align: middle;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left:0;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  cursor: hand;
+
+}
+
+#open_bathyfile {
+  background-image: url('buttons/open_bathy.png');
+  display: block;
+  position: relative;
+  cursor: hand;
+}
+
+#open_bathyfile:hover {   cursor: hand; background-image: url('buttons/open_bathy_bw.png'); }
+
+#open_bathyfile input {
+  position: absolute;
+  vertical-align: middle;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left:0;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  cursor: hand;
+
+}
+
+
+#maps { background-image: url('buttons/maps_BT.png'); }
+#maps:hover { background-image: url('buttons/maps_BT_dw.png'); }
+
+#clear { background-image: url('buttons/clear_BT.png'); }
+#clear:hover { background-image: url('buttons/clear_BT_dw.png'); }
+
+#vehicle_list { background-image: url('buttons/AUV_list_BT.png'); }
+#vehicle_list:hover { background-image: url('buttons/AUV_list_BT_dw.png'); }
+
+#vehicle_conf { background-image: url('buttons/AUV_BT.png'); }
+#vehicle_conf:hover { background-image: url('buttons/AUV_BT_dw.png'); }
+
+
+#zoom_tools { background-image: url('buttons/zoom_tools.png'); }
+#zoom_tools:hover { background-image: url('buttons/zoom_tools_dw.png'); }
+#zoom_1_1 { background-image: url('buttons/zoom_1_1.png'); }
+#zoom_1_1:hover { background-image: url('buttons/zoom_1_1_dw.png'); }
+#follow_vehicle { background-image: url('buttons/center_on_vehicle.png'); }
+#follow_vehicle:hover, #follow_vehicle.activated { background-image: url('buttons/center_on_vehicle_dw.png'); }
+#follow_vehicle.disabled { cursor: not-allowed; box-shadow: inset 0 0 0 1000px rgba(0,0,0,.3); background-image: url('buttons/center_on_vehicle.png'); }
+
+
+#div_zoom_buttons { 
+  position: absolute; 
+  display: block; 
+  left: 0px;
+  z-index: 10;
+}
+
+#div_mission_program_buttons { 
+  position: absolute; 
+  display: block; 
+  left: 0px;
+  z-index: 10;
+}
+
+#error_list { background-image: url('buttons/errors.png'); }
+#error_list:hover { background-image: url('buttons/errors_dw.png'); }
+
+#mission { background-image: url('buttons/mission_BT.png'); }
+#mission:hover, #mission.activated { background-image: url('buttons/mission_BT_dw.png'); }
+#nav_mission_program_edit { background-image: url('buttons/mission_edit.png'); }
+#nav_mission_program_edit:hover, #nav_mission_program_edit.activated { background-image: url('buttons/mission_edit_dw.png'); }
+#nav_mission_program_edit.disabled { cursor: not-allowed; box-shadow: inset 0 0 0 1000px rgba(0,0,0,.3); background-image: url('buttons/mission_edit.png'); }
+
+#nav_mission_program_new { background-image: url('buttons/mission_add.png'); }
+#nav_mission_program_new:hover, #nav_mission_program_new.activated { background-image: url('buttons/mission_add_dw.png'); }
+#nav_mission_program_new.disabled { cursor: not-allowed; box-shadow: inset 0 0 0 1000px rgba(0,0,0,.3); background-image: url('buttons/mission_add.png'); }
+
+#nav_mission_program_line_by_line { background-image: url('buttons/mission_BT.png'); }
+#nav_mission_program_line_by_line:hover, #nav_mission_program_line_by_line.activated { background-image: url('buttons/mission_BT_dw.png'); }
+#nav_mission_program_line_by_line.disabled { cursor: not-allowed; box-shadow: inset 0 0 0 1000px rgba(0,0,0,.3); background-image: url('buttons/mission_BT.png'); }
+
+#measure { background-image: url('buttons/measure_BT.png'); }
+#measure:hover, #measure.activated { background-image: url('buttons/measure_BT_dw.png'); }
+
+#waypoint { background-image: url('buttons/waypoint_BT.png'); }
+#waypoint:hover, #waypoint.activated { background-image: url('buttons/waypoint_BT_dw.png'); }
+
+#waypoint_clear { background-image: url('buttons/waypoint_clear_BT.png'); }
+#waypoint_clear:hover { background-image: url('buttons/waypoint_clear_BT_dw.png'); }
+
+#mission_moveSingleBt { background-image: url('buttons/move_single.png'); }
+#mission_moveSingleBt:hover, #mission_moveSingleBt.activated  { background-image: url('buttons/move_single_dw.png'); }
+
+#mission_clearBt { background-image: url('buttons/brush.png'); }
+#mission_clearBt:hover, #mission_clearBt.activated  { background-image: url('buttons/brush_dw.png'); }
+
+.missions_buttons_console {
+  border-style: solid;
+  border-width: 1px;
+  padding-top:0;
+  width: 30px;
+  background-size: 100% 100%;
+  cursor: hand;
+}
+
+.missions_buttons_header { height: 30px; }
+
+td.mbutton_td { width: 32px; }
+
+#mission_close { 
+  position: absolute; 
+  height: 22px;
+  width: 22px;
+  background-image: url('buttons/close_red.png');
+  border: none;
+  /*box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);*/
+}
+
+#mission_save_morph { background-image: url('buttons/morph_download.png'); }
+#mission_save_morph:hover, #mission_save_morph.activated { background-image: url('buttons/morph_download_dw.png'); }
+
+#mission_conf { background-image: url('buttons/mission_conf_.png'); }
+#mission_conf:hover, #mission_conf.activated { background-image: url('buttons/mission_conf_dw.png'); }
+
+#mission_plus { background-image: url('buttons/mission_plus_.png'); }
+#mission_plus:hover, #mission_plus.activated { background-image: url('buttons/mission_plus_dw.png'); }
+
+#mission_minus { background-image: url('buttons/mission_minus_.png'); }
+#mission_minus:hover, #mission_minus.activated { background-image: url('buttons/mission_minus_dw.png'); }
+
+#mission_next { background-image: url('buttons/mission_next_.png'); }
+#mission_next:hover, #mission_next.activated { background-image: url('buttons/mission_next_dw.png'); }
+
+#upload_mission { background-image: url('buttons/upload_mission.png'); }
+#upload_mission:hover, #upload_mission.activated { background-image: url('buttons/upload_mission_dw.png'); }
+
+.logos {
+  border-style: solid;
+  border-width: 0px;
+  padding-top:0;
+  background-size: 100% 100%;
+  height: 50px;
+  text-align: right;
+}
+
+#dsor_logo { background-image: url('buttons/dsor_logo.jpg'); }
+
+.dsor_logo { width: 42px; }
+
+#isr_logo { background-image: url('buttons/isr_logo.png'); }
+
+.isr_logo { width: 34px; }
+
+#ist_logo { background-image: url('buttons/ist_logo.png'); }
+
+.ist_logo { width: 39px; }
+
+td.button_td {  width: 39px; }
+
+table.no_padding td {
+  padding: 0px 0px;
+  box-sizing: initial;
+}
+
+.no_padding {
+  padding: 0px 0px;
+  box-sizing: initial; 
+}
+
+/* TEMPORARY STUFF BEGINING*/
+
+#divVisual input{
+  font-family: Arial;
+  font-size: 13.3333330154419px;
+  height: initial;
+  position: initial;
+  left: initial
+}
+
+#divVisual textarea{
+  font-family: monospace;
+  font-size: 13.3333330154419px;
+}
+
+#columnVisual{
+  border-collapse: initial
+}
+
+/* TEMPORARY STUFF END */
+#Mission_File_UP{
+  width: 50px;
+  font-size: 1px
+}
+/* TEMPORARY STUFF END */
+#bathyfile_UP{
+  width: 50px;
+  font-size: 1px
+}

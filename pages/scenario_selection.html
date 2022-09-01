@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Scenario Selection</title>
+  <link rel="stylesheet" type="text/css" media="all" href="../css/styles.css">
+  <script type="text/javascript" charset="utf-8" src="../scripts/overlay_window.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../scripts/Medusa_MOOS_ROS.js"></script>
+  <script>
+	  function create_list_scenarios(){
+		var ul_list = document.getElementById('scenarios_list');
+		for(var i=0; i<Scenarios.length;i++){
+			var cur_sc=Scenarios[i];
+			var li_element = document.createElement('li');
+			ul_list.appendChild(li_element);
+			var a_element = document.createElement('a');
+			li_element.appendChild(a_element);
+			a_element.setAttribute('onclick','scenario_img_click('+(i+1)+');');
+			a_element.setAttribute('rel','lightbox');
+			a_element.setAttribute('title',cur_sc.name);
+			
+			var img_element=document.createElement('img');
+			img_element.setAttribute("src","../"+cur_sc.path_thumb);
+			img_element.setAttribute("width","150");
+			img_element.setAttribute("height","150");
+			a_element.appendChild(img_element);
+			
+		}
+	  }
+	  function scenario_img_click(id){		 
+		//console.log("ID = " +id);
+		//chScen((id+10).toString(), 1);
+		window.top.postMessage('CHSCEN='+(id+10).toString(), '*');
+		//restore_select();
+	  }
+  </script>
+  <!--<script>
+  </script>	-->
+</head>
+<body onload="create_list_scenarios()">
+  <div id="wrapper">
+      <div style="border-bottom: #000 4px solid;text-align:center">
+        <h1 style="color: #222;text-shadow: 0px 2px 3px #555;">Scenario Selection</h1>
+      </div>
+      <div class="photos">
+        <ul id="scenarios_list" class="clearfix">
+          <!--<li><a href="Mission_scenarios/my_map_expo2.jpg" rel="lightbox" title="EXPO Doca dos Olivais"><img src="Mission_scenarios/my_map_expo2.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/expo_bathy.jpg" rel="lightbox" title="EXPO Bathymetry"><img src="Mission_scenarios/expo_bathy.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/map_expo_color.jpg" rel="lightbox" title="EXPO no water"><img src="Mission_scenarios/map_expo_color.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/my_map_expo.jpg" rel="lightbox" title="EXPO Full Dock"><img src="Mission_scenarios/my_map_expo.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/porto_brandao.jpg" rel="lightbox" title="Porto Brandao"><img src="Mission_scenarios/porto_brandao.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/sesimbra small 18.jpg" rel="lightbox" title="Sesimbra High Resolution"><img src="Mission_scenarios/sesimbra small 18.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/sesimbra small zoom 20.jpg" rel="lightbox" title="Sesimbra Zoom"><img src="Mission_scenarios/sesimbra small zoom 20.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/sesimbra.jpg" rel="lightbox" title="Sesimbra"><img src="Mission_scenarios/sesimbra.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/sesimbra2.jpg" rel="lightbox" title="Sesimbra"><img src="Mission_scenarios/sesimbra2.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/my_map_ist.jpg" rel="lightbox" title="IST"><img src="Mission_scenarios/my_map_ist.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/toulon_map.jpg" rel="lightbox" title="Toulon - France"><img src="Mission_scenarios/toulon_map.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/toulon_map_zoom.jpg" rel="lightbox" title="Toulon Zoom - France"><img src="Mission_scenarios/toulon_map_zoom.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/my_map_oeiras_final.jpg" rel="lightbox" title="Oeiras Pool"><img src="Mission_scenarios/my_map_oeiras_final.jpg" width="150" height="150"></a></li>
+          <li><a href="Mission_scenarios/sant_feliu_Girona.jpg" rel="lightbox" title="Sant Feliu - Spain"><img src="Mission_scenarios/sant_feliu_Girona.jpg" width="150" height="150"></a></li>-->
+          </ul>
+      </div>
+  </div>
+</body>
+</html>

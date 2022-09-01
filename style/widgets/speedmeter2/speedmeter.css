@@ -1,0 +1,54 @@
+/*
+green:  4ecaabff;
+blue:   42a5f5ff;
+pink:   f48fb1ff;
+grey1:  e7eeebff;
+grey    88898cff
+*/
+
+.speedmeter {
+    position:relative;
+    width: 20px;
+    height: 80px;
+    background-color: #e7eeeb;
+}
+
+bar.speedmeter_pointer_ref {
+    max-height: 15%;
+    z-index: 2;
+    -webkit-backface-visibility: hidden;
+    background: #388e3c;
+}
+
+bar.speedmeter_pointer{
+    max-height: 15%;
+    z-index: 3;
+    -webkit-backface-visibility: hidden;
+    background: #01579b;
+}
+
+.speedmeter bar {
+    height: 3px;
+    width: 30px;
+    position: absolute;
+    vertical-align: middle;
+    max-width: 100%;
+    max-height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    z-index: 1;
+}
+
+.speedmeter_container span{
+    font-size: 10px;
+}
+
+#speedmeter_value_ref {
+    color: #388e3c;
+}
+
+#speedmeter_value {
+    color: #01579b;
+}

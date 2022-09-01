@@ -1,0 +1,729 @@
+<html>
+<head>
+<title>side_view</title>
+<link rel="stylesheet" href="../style/mds_colors_50.css" type="text/css" />
+<link rel="stylesheet" href="../style/divMDS.css" type="text/css" />
+<!-- <script src="js/jquery-2.1.1.min.js"></script> -->
+<style type="text/css">
+  .collapse {
+    background-image: url('../style/mds_panel/collapse_arrow.png');
+    background-repeat: no-repeat;
+    background-size:cover;
+  }
+  .uncollapse {
+    background-image: url('../style/mds_panel/expand_arrow.png');
+    background-repeat: no-repeat;
+    background-size:cover;
+  }
+</style>
+<script src="../scripts/basic.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-1.10.2.js"></script> -->
+<script src="../js/jquery-2.1.1.min.js"></script>
+<script>
+  var VCurr;
+  var VehiclesData;
+  var mds_ros_namespace;
+  var ros_namespace;
+  var varstoask=["horizontal_flag", "vertical_flag", "thruster_flag", "weight_release_flag"];
+  
+  var mdsVehicleData = new Object();
+  
+  function replaceClass(id, class1, class2)
+  {
+    $("#"+id).removeClass(class1);
+    $("#"+id).addClass(class2);
+  }
+  function update_page()
+  {
+    // Populate txtStatus
+    if(VCurr>0 && VehiclesData[VCurr-1].txtStatus != undefined)
+    {
+      document.getElementById("txtMDeepSea_status").innerHTML = VehiclesData[VCurr-1].txtStatus;
+
+      if(VehiclesData[VCurr-1].received_var == undefined || (Date.now()/1000-VehiclesData[VCurr-1].received_var) > 2.0)
+        document.getElementById("txtMDeepSea_status").style.color = "red"
+      else
+        document.getElementById("txtMDeepSea_status").style.color = "black"
+      mds_rotate(-VehiclesData[VCurr-1].PITCH);
+
+      // update namespace
+      if(mds_ros_namespace.length >= VCurr)
+      {
+        ros_namespace = mds_ros_namespace[VCurr-1];
+        if($("#txtMDeepSea_ns").data("lastval")!= ros_namespace)
+        {
+          $('#txtMDeepSea_ns').val(ros_namespace);
+          $("#txtMDeepSea_ns").trigger("input");
+        }
+      }
+      // remove everything
+      replaceClass("mds_widget_ver_back_th1_overlay",'green','red');
+      replaceClass("mds_widget_ver_back_th2_overlay",'green','red');
+      replaceClass("mds_widget_ver_front_th1_overlay",'green','red');
+      replaceClass("mds_widget_ver_front_th2_overlay",'green','red');
+      replaceClass("mds_widget_hor_right_th1_overlay",'green','red');
+      replaceClass("mds_widget_hor_right_th2_overlay",'green','red');
+      // update thruster status
+      // vertical thrusters
+      if(mdsVehicleData.thruster_flag & 1 )
+      {
+        replaceClass("mds_widget_ver_back_th1_overlay",'red','green');
+        replaceClass("mds_widget_ver_back_th2_overlay",'red','green');
+        replaceClass("mds_widget_ver_front_th1_overlay",'red','green');
+        replaceClass("mds_widget_ver_front_th2_overlay",'red','green');
+      }
+      // horizontal thrusters
+      if(mdsVehicleData.thruster_flag & 2 )
+      {
+        replaceClass("mds_widget_hor_right_th1_overlay",'red','green');
+        replaceClass("mds_widget_hor_right_th2_overlay",'red','green');
+      }
+
+      //update vertical controller status
+      $("#btMDeepSea_verticalSt").text("IDLE");
+      if(mdsVehicleData.vertical_flag == 1)
+      {
+        $("#btMDeepSea_verticalSt").text("DEPTH");
+        $("#btMDeepSea_depthvalue").addClass('mds_wp_enabled');
+      }
+      else
+      {
+        $("#btMDeepSea_depthvalue").removeClass('mds_wp_enabled');
+      }
+      if(mdsVehicleData.vertical_flag == 2)
+      {
+        $("#btMDeepSea_verticalSt").text("ALTITUDE");
+        $("#btMDeepSea_altvalue").addClass('mds_wp_enabled');
+      }
+      else
+      {
+        $("#btMDeepSea_altvalue").removeClass('mds_wp_enabled');
+      }
+
+      if(mdsVehicleData.vertical_flag == 3)
+      {
+        $("#btMDeepSea_verticalSt").text("FULLUP");
+      }
+
+      //update horizontal controller status
+      $("#btMDeepSea_horizontalSt").text("IDLE");
+      if(mdsVehicleData.horizontal_flag == 1)
+      {
+        $("#btMDeepSea_horizontalSt").text("WP");
+      }
+
+      // weight release flag
+      replaceClass("mds_widget_back_release_weight_overlay",'green','red');
+      replaceClass("mds_widget_front_release_weight_overlay",'green','red');
+      if(mdsVehicleData.weight_release_flag & 1 && (Date.now()/1000-mdsVehicleData.weight_release_flag_time)<5.0) 
+        replaceClass("mds_widget_front_release_weight_overlay",'red','green');
+      if(mdsVehicleData.weight_release_flag & 2 && (Date.now()/1000-mdsVehicleData.weight_release_flag_time)<5.0) 
+        replaceClass("mds_widget_back_release_weight_overlay",'red','green');
+      
+    }
+  }
+
+  function topics_list(){
+    this.topics={};
+    this.addTopic = function(obj_topic){
+      this.topics[obj_topic.name]=obj_topic;
+    }
+  }
+
+  function topic(name){
+    this.name=name;
+    this.subtopics = {};
+    this.addSubTopic = function(name,fcn){
+      this.subtopics[name]=fcn;
+    }
+  }
+  
+  var topics_list = new topics_list();
+  var aux = new topic("horizontal_flag");
+  aux.addSubTopic('data',"horizontal_flag");
+  topics_list.addTopic(aux);
+  aux = new topic("vertical_flag");
+  aux.addSubTopic('data',"vertical_flag");
+  topics_list.addTopic(aux);
+  aux = new topic("thruster_flag");
+  aux.addSubTopic('data',"thruster_flag");
+  topics_list.addTopic(aux);
+  aux = new topic("weight_release_flag");
+  aux.addSubTopic('data',"weight_release_flag");
+  topics_list.addTopic(aux);
+
+  function checkFields(topic, subtopic, text){
+    
+    var namespace = ros_namespace;
+    if(namespace != "")
+    {
+      if(namespace.charAt(0) == "/")
+        namespace = namespace.substr(1);
+
+      if(namespace.charAt(namespace.length-1) != "/")
+        namespace += "/";
+      topic = topic.replace(namespace.replace("/","_"),"");
+    }
+    // 
+
+    if(topics_list.topics[topic]  && topics_list.topics[topic].subtopics[subtopic])
+    {
+      mdsVehicleData[topics_list.topics[topic].subtopics[subtopic]] = text;
+      mdsVehicleData[topics_list.topics[topic].subtopics[subtopic]+'_time'] = Date.now()/1000.0;
+    }
+  }
+
+  function readXML(xmlhttp) {
+    if(xmlhttp && xmlhttp.readyState != 4)  { return; }
+    if(xmlhttp && xmlhttp.status==200)
+    {
+      clearTimeout(xmlhttp.time);
+      xmlDoc=xmlhttp.responseXML;
+      if (xmlDoc)
+      {
+        if(xmlDoc.getElementsByTagName("ROSMessage").length!=0)
+        {
+          var rosmsg = xmlDoc.getElementsByTagName("ROSMessage");
+          var rosn   = rosmsg.length;
+          var seq_num = 0;
+          for(var i=0;i<rosn;i++){
+            name_nodeValue = rosmsg[i].attributes.getNamedItem("name").value;
+
+            var var_elements = rosmsg[i].getElementsByTagName("KEY");
+            for(var j=0;j<var_elements.length;j++){
+              var subtopic = "";
+              var topicvalue = "";
+              if(var_elements[j].textContent){
+                subtopic = var_elements[j].textContent;
+                topicvalue = rosmsg[i].getElementsByTagName("DOUBLE")[j].textContent;
+              }else{ // IE
+                subtopic = var_elements[j].text;
+                topicvalue = rosmsg[i].getElementsByTagName("DOUBLE")[j].text;
+              }
+
+              checkFields(name_nodeValue, subtopic, topicvalue);
+            }
+          }
+        }
+      }
+    }
+    xmlhttp.abort();
+  }
+  function varReqAbort(xmlrq)
+  {
+    xmlrq.abort();
+  }
+  /* TODO: animate rotation */
+  function mds_rotate(rotationAngle)
+  {
+    if(rotationAngle<-180.0)
+      rotationAngle=rotationAngle+360.0;
+
+		var x = $('#mds_widget').width()*Math.cos(Math.abs(rotationAngle)*3.1415/180) + $('#mds_widget').height()*Math.sin(Math.abs(rotationAngle)*3.1415/180);
+		var y = $('#mds_widget').width()*Math.sin(Math.abs(rotationAngle)*3.1415/180) + $('#mds_widget').height()*Math.cos(Math.abs(rotationAngle)*3.1415/180);
+    var originx = $('#mds_widget').width()/2
+    var originy = $('#mds_widget').height()/2
+		var $widget = $("#mds_widget");
+    x*=0.7;
+    y*=0.7;
+		// For webkit browsers: e.g. Chrome
+		$widget.css({ WebkitTransform: 'rotate(' + rotationAngle + 'deg)'});
+		// For Mozilla browser: e.g. Firefox
+		$widget.css({ '-moz-transform': 'rotate(' + rotationAngle + 'deg)'});
+//    $widget.css({ 'transform': 'translate('+(-(originx-x/2))+'px,'+(-(originy-y/2))+'px) rotate(' + rotationAngle + 'deg)'});
+    $widget.css({ 'transform': 'translate(-30px,-20px) scale(0.7,0.7) rotate(' + rotationAngle + 'deg)'});
+    //$widget.css({ 'transform': 'translate(3.57px, 82.8px) rotate(' + rotationAngle + 'deg)'});
+    $('#mds_widget_dummy').width(x+(originx-x/2)-30)
+    $('#mds_widget_dummy').height(y+(originy-y/2)-32)
+  }
+ 
+  function askVars(){
+    var VehicleServer;
+    if(VCurr > 0 && VehiclesData[VCurr-1].mds_panel)
+      VehicleServer = getVehicleURL(VCurr-1);
+    else
+      return;
+    
+    // validate namespace  
+    var namespace = ros_namespace;
+    if(namespace != "")
+    {
+      if(namespace.charAt(0) == "/")
+        namespace = namespace.substr(1);
+
+      if(namespace.charAt(namespace.length-1) != "/")
+        namespace += "/";
+    }
+    // create new publisher
+    var xmlreq = new XMLHttpRequest();
+    xmlreq.open("GET",VehicleServer+"VAR%20" +namespace+varstoask.join("%20"+namespace),true);
+    //xmlreq.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2005 00:00:00 GMT");
+    xmlreq.time = setTimeout(varReqAbort.bind(null, xmlreq),500);
+    xmlreq.onreadystatechange = readXML.bind(null, xmlreq);
+    xmlreq.send();
+  }
+
+  $(function() {
+
+    function listener(event){
+      /*if ( event.origin !== "http://javascript.info" )
+        return*/
+      if(event.data.indexOf("update:")!=-1)
+      {
+        var vehicle = parseInt(event.data.replace("update:",""));
+        // changed vehicle
+        if(VCurr!=(vehicle + 1))
+          mds_rotate(0);
+        
+        VCurr = vehicle +1;
+        if(localStorage.VehiclesData  != undefined)
+        VehiclesData = JSON.parse(localStorage.VehiclesData);
+        //mds_ros_namespace = JSON.parse(localStorage.mds_ros_namespace);
+
+        // parse namespace
+        if(localStorage.mds_ros_namespace != undefined)
+          mds_ros_namespace = JSON.parse(localStorage.mds_ros_namespace);
+        update_page();
+      }
+      else if(event.data.indexOf("waypoint:")!=-1)
+      {
+        var point = JSON.parse(event.data.replace("waypoint:",""))
+        $("#txtMDeepSea_xd").val(String(Math.round(point.x)));
+        $("#txtMDeepSea_yd").val(String(Math.round(point.y)));
+        console.log(point);
+      }
+    }
+
+    // abort function called when a request was not successful
+    function xmlAbort(xmlrq){
+      //console.log("not aborted:"+xmlrq.readyState + " xmlhttp.status " + xmlrq.status)
+      xmlrq.abort();
+      //console.log("aborted:"+xmlrq.readyState)
+    }
+    
+    // Ready state, when it worked
+    function testReadyState(xmlrq){
+      //console.log("Received ready: " + xmlrq.readyState);
+      if (xmlrq && xmlrq.readyState != 4)  { return; }
+      if (xmlrq && xmlrq.status == 200){
+        //console.log("worked");
+        clearTimeout(xmlrq.time);
+      }
+    }
+
+    function pub_ref( topicname, value, type, nodata){
+      nodata = typeof nodata !== 'undefined' ? nodata : false;
+      var VehicleServer;
+      if(VCurr > 0)
+        VehicleServer = getVehicleURL(VCurr-1);
+      
+      // validate namespace  
+      var namespace = ros_namespace;
+      if(namespace != "")
+      {
+        if(namespace.charAt(0) == "/")
+          namespace = namespace.substr(1);
+
+        if(namespace.charAt(namespace.length-1) != "/")
+          namespace += "/";
+      }
+
+      console.log("value " + value);
+      // create new publisher
+      var xmlreq = new XMLHttpRequest();
+      if(nodata)
+        xmlreq.open("GET",VehicleServer+"RSET%20"+namespace+topicname+"%20"+type+" { "+value+"}",true); // Server stuck in a loop.
+      else
+        xmlreq.open("GET",VehicleServer+"RSET%20"+namespace+topicname+"%20"+type+" {data: "+value+"}",true); // Server stuck in a loop.
+      xmlreq.time = setTimeout(xmlAbort.bind(null, xmlreq),500);
+      xmlreq.onreadystatechange = testReadyState.bind(null, xmlreq);
+      xmlreq.send();
+    }
+
+    // Init function
+    function Load(){
+      if (window.addEventListener)
+      {
+        addEventListener("message", listener, false)
+      } else {
+        attachEvent("onmessage", listener)
+      }
+      $("#mds_collapse_widget").on("click", function() 
+        { 
+          if($("#mds_collapse_widget").hasClass("uncollapse"))
+          {
+            $("#mds_widget_dummy").css("display","inherit");
+            replaceClass("mds_collapse_widget", "uncollapse", "collapse");
+          }
+          else
+          {
+            $("#mds_widget_dummy").css("display","none");
+            replaceClass("mds_collapse_widget", "collapse", "uncollapse");
+          }
+        });
+
+      $( "#mds_pickpoint" ).on( "click",  function(){ parent.postMessage("mds_waypoint","*") } );
+
+      //$( "#btMDeepSea_wpsend" ).click();
+      $( "#btMDeepSea_depthsend" ).on( "click", function(){ pub_ref("depthref", $("#btMDeepSea_depthvalue").val(), 'std_msgs/Float64' )});
+      $( "#btMDeepSea_altsend" ).on( "click", function(){ pub_ref("altituderef", $("#btMDeepSea_altvalue").val(), 'std_msgs/Float64' )});
+/*      $( "#btMDeepSea_depthsend" ).on( "click", function(){ pub_ref("console/publish", "'" + $("#btMDeepSea_depthvalue").val() + "', name: '/upper/innerloops/depthref', type: 'std_msgs/Float32', rate: 5 ", 'medusa_msgs/periodictopic' )});
+      $( "#btMDeepSea_altsend" ).on( "click", function(){ pub_ref("console/publish", "'" + $("#btMDeepSea_altvalue").val() + "', name: '/upper/innerloops/altituderef', type: 'std_msgs/Float32', rate: 5 ", 'medusa_msgs/periodictopic' )});*/
+      $( "#btMDeepSea_stpthr" ).on( "click", function(){ pub_ref("thruster_stop", 1, 'std_msgs/Int8' )});
+      $( "#btMDeepSea_fullupthr" ).on( "click", function(){ pub_ref("thrusters_up", "true", 'std_msgs/Bool' )});
+      $( "#btMDeepSea_rlsfront" ).on( "click", function(){ pub_ref("weight_release", 1, 'std_msgs/Int8' )});
+      $( "#btMDeepSea_rlsback" ).on( "click", function(){ pub_ref("weight_release", 2, 'std_msgs/Int8' )});
+      $( "#btMDeepSea_controllerstop" ).on( "click", function(){ pub_ref("stop_controllers", "true", 'std_msgs/Bool' )});
+      $( "#btMDeepSea_wpsend" ).on( "click", function(){ pub_ref("wpref_abs", "header: { stamp: now }, point: {x: "+$("#txtMDeepSea_xd").val()+", y: "+$("#txtMDeepSea_yd").val() + " } ", 'geometry_msgs/PointStamped', true)});
+      // avoid too many function fires
+      $('#txtMDeepSea_ns').on('input',function(e){
+        if($(this).data("lastval")!= $(this).val())
+        {
+          $(this).data("lastval",$(this).val());
+          if($(this).val().replace(" ","") == "")
+            $('#plhMDeepSea_ns').css("visibility", "visible");
+          else
+            $('#plhMDeepSea_ns').css("visibility", "hidden");
+          ros_namespace = $(this).val().replace(" ","");
+          if(mds_ros_namespace.length == 0)
+          {
+            for(i=0; i<VCurr-1;i++)
+            {
+              mds_ros_namespace.push(undefined)
+            }
+            mds_ros_namespace.push(ros_namespace);
+          }
+          else
+          {
+            mds_ros_namespace[VCurr-1] = ros_namespace;
+          }
+          localStorage.mds_ros_namespace = JSON.stringify(mds_ros_namespace);
+        };
+      });
+      $("#txtMDeepSea_ns").keypress(function(e) {
+        // enter key removes focus
+        if (e.which == 13)
+        {
+          $(this).blur();
+          console.log("key pressed");
+        }
+      });
+      mds_ros_namespace = [];
+      // initialized to empty
+      ros_namespace = "";
+      // Start with 0
+      mds_rotate(0);
+    }
+    
+    Load();
+
+    setInterval("askVars();",1000);
+  });
+</script>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="overflow: hidden">
+<div id="mds_collapse_widget" class="collapse" style="width: 20;height: 20; cursor: hand;">
+</div>
+<div id="mds_widget_dummy" style="display: block;  width: 249;">
+  <div id="mds_widget">
+  <table id="Table_01" width="294" height="178" border="0" cellpadding="0" cellspacing="0">
+  	<tr>
+  		<td colspan="18">
+  			<div class="spacer" style="width:293; height:51;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:51;"></div></td>
+  	</tr>
+  	<tr>
+  		<td colspan="6">
+  			<div class="spacer" style="width:74; height:5;"></div></td>
+  		<td colspan="5" rowspan="4">
+  			<span id="mds_widget_upper_tube_overlay" style="width:151; height:37;" title="upper housing"></span>
+  			<div class="spacer" style="width:151; height:37;"></div></td>
+  		<td colspan="7" rowspan="9">
+  			<div class="spacer" style="width:68; height:88;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:5;"></div></td>
+  	</tr>
+  	<tr>
+  		<td colspan="4">
+  			<div class="spacer" style="width:62; height:21;"></div></td>
+  		<td>
+  			<span id="mds_widget_ver_back_th1_overlay" style="width:8; height:21;" title="vertical thrusters"></span>
+  			<div class="spacer" style="width:8; height:21;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:4; height:21;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:21;"></div></td>
+  	</tr>
+  	<tr>
+  		<td colspan="3" rowspan="9">
+  			<div class="spacer" style="width:59; height:72;"></div></td>
+  		<td colspan="3">
+  			<span id="mds_widget_ver_back_th2_overlay" style="width:15; height:7;" title="vertical thrusters"></span>
+  			<div class="spacer" style="width:15; height:7;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:7;"></div></td>
+  	</tr>
+  	<tr>
+  		<td colspan="3" rowspan="7">
+  			<div class="spacer" style="width:15; height:62;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:4;"></div></td>
+  	</tr>
+  	<tr>
+  		<td colspan="5">
+  			<div class="spacer" style="width:151; height:19;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:19;"></div></td>
+  	</tr>
+  	<tr>
+  		<td colspan="2" rowspan="4">
+  			<div class="spacer" style="width:13; height:32;"></div></td>
+  		<td rowspan="3">
+  			<span id="mds_widget_hor_right_th2_overlay" style="width:6; height:15;" title="horizontal thrusters"></span>
+  			<div class="spacer" style="width:6; height:15;"></div></td>
+  		<td colspan="2">
+  			<div class="spacer" style="width:132; height:4;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:4;"></div></td>
+  	</tr>
+  	<tr>
+  		<td>
+  			<span id="mds_widget_hor_right_th1_overlay" style="width:16; height:7;" title="horizontal thrusters"></span>
+  			<div class="spacer" style="width:16; height:7;"></div></td>
+  		<td rowspan="3">
+  			<div class="spacer" style="width:116; height:28;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:7;"></div></td>
+  	</tr>
+  	<tr>
+  		<td rowspan="2">
+  			<div class="spacer" style="width:16; height:21;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:4;"></div></td>
+  	</tr>
+  	<tr>
+  		<td>
+  			<div class="spacer" style="width:6; height:17;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:17;"></div></td>
+  	</tr>
+  	<tr>
+  		<td>
+  			<div class="spacer" style="width:9; height:7;"></div></td>
+  		<td colspan="4" rowspan="5">
+  			<span id="mds_widget_lower_tube_overlay" style="width:142; height:30;"  title="lower housing"></span>
+  			<div class="spacer" style="width:142; height:30;"></div></td>
+  		<td colspan="2" rowspan="3">
+  			<div class="spacer" style="width:20; height:22;"></div></td>
+  		<td rowspan="3">
+  			<span id="mds_widget_ver_front_th1_overlay" style="width:9; height:22;" title="vertical thrusters"></span>
+  			<div class="spacer" style="width:9; height:22;"></div></td>
+  		<td colspan="4" rowspan="2">
+  			<div class="spacer" style="width:39; height:10;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:7;"></div></td>
+  	</tr>
+  	<tr>
+  		<td rowspan="5">
+  			<div class="spacer" style="width:3; height:31;"></div></td>
+  		<td colspan="3" rowspan="4">
+  			<span id="mds_widget_dvl_overlay" style="width:21; height:23;"  title="DVL"></span>
+  			<div class="spacer" style="width:21; height:23;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:3;"></div></td>
+  	</tr>
+  	<tr>
+  		<td rowspan="4">
+  			<div class="spacer" style="width:40; height:28;"></div></td>
+  		<td rowspan="2">
+  			<span id="mds_widget_back_release_weight_overlay" style="width:14; height:18;" title="back weight release"></span>
+  			<div class="spacer" style="width:14; height:18;"></div></td>
+  		<td rowspan="4">
+  			<div class="spacer" style="width:5; height:28;"></div></td>
+  		<td colspan="2">
+  			<div class="spacer" style="width:6; height:12;"></div></td>
+  		<td rowspan="2">
+  			<span id="mds_widget_front_release_weight_overlay" style="width:10; height:18;"  title="front weight release"></span>
+  			<div class="spacer" style="width:10; height:18;"></div></td>
+  		<td rowspan="4">
+  			<div class="spacer" style="width:23; height:28;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:12;"></div></td>
+  	</tr>
+  	<tr>
+  		<td rowspan="3">
+  			<div class="spacer" style="width:17; height:16;"></div></td>
+  		<td colspan="3">
+  			<span id="mds_widget_ver_front_th2_overlay" style="width:16; height:6;" title="vertical thrusters"></span>
+  			<div class="spacer" style="width:16; height:6;"></div></td>
+  		<td rowspan="3">
+  			<div class="spacer" style="width:2; height:16;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:6;"></div></td>
+  	</tr>
+  	<tr>
+  		<td rowspan="2">
+  			<div class="spacer" style="width:14; height:10;"></div></td>
+  		<td colspan="3" rowspan="2">
+  			<div class="spacer" style="width:16; height:10;"></div></td>
+  		<td rowspan="2">
+  			<div class="spacer" style="width:10; height:10;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:2;"></div></td>
+  	</tr>
+  	<tr>
+  		<td colspan="7">
+  			<div class="spacer" style="width:163; height:8;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:1; height:8;"></div></td>
+  	</tr>
+  	<tr>
+  		<td>
+  			<div class="spacer" style="width:40; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:14; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:5; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:3; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:8; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:4; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:9; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:4; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:6; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:16; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:116; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:17; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:3; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:9; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:4; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:2; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:10; height:1;"></div></td>
+  		<td>
+  			<div class="spacer" style="width:23; height:1;"></div></td>
+  		<td></td>
+  	</tr>
+  </table>
+  </div> <!-- end widget -->
+
+</div>
+<div style="display: inline; ">
+<div id="divMDS_cmds">
+  <span class="mds_separator">Namespace</span>
+  <div class="" style="margin: 5px 0px 5px 5px;">
+    <div style="position: relative;">
+      <span id="plhMDeepSea_ns" class="mds_placeholder" >e.g. /medusa_ds</span>
+      <input id="txtMDeepSea_ns" style="width:100%" type="text" required="" />
+    </div>
+  </div>
+	<span class="mds_separator">Waypoint</span>
+  <table>
+    <tr>
+      <td>
+        <div style="position: relative">
+          <span class="mds_placeholder" >X=</span>
+          <input id="txtMDeepSea_xd" type="number" value="-1" required="" class='mds_wp' />
+        </div>
+      </td>
+      <td rowspan="2">
+        <span id="mds_pickpoint"></span>
+        </td>
+      <td rowspan="2">
+        <input id='btMDeepSea_wpsend' type='button' value='SEND' class='mds_send'>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div style="position: relative">
+          <span  class="mds_placeholder">Y=</span>
+          <input id="txtMDeepSea_yd" type="number" value="-1" required="" class='mds_wp'/>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <span class="mds_separator">Depth</span>
+  <!-- <input id="sldMDeepSea_depth" type="range" min="0" max="1500" value="0" step="10" /><br> -->
+  <div id="depthController" class="mds_container">
+    <span></span>
+    <input id='btMDeepSea_depthvalue' type='number' value='0'  min="0" max="1500" step="1" class='mds_wp'/> 
+    <input id='btMDeepSea_depthsend' type='button' value='SEND' class='mds_send'> 
+  </div>
+
+  <span class="mds_separator">Altitude</span>
+  <!-- <input id="sldMDeepSea_alt" type="range" min="0" max="50" value="0" step="0.5" /> -->
+  <div class="mds_container">
+    <span></span>
+    <input id='btMDeepSea_altvalue' type='number' value='0'  min="0" max="50" step="0.5" class='mds_wp'/> 
+    <input id='btMDeepSea_altsend' type='button' value='SEND' class='mds_send'> 
+  </div>
+  <span class="mds_separator">Controllers</span>
+  <table>
+    <tr>
+      <td>
+        <span style="display: block; float:left; margin: 0px 0px 0px 0px;" class="divMDS_textsps">Vertical: </span>
+        <span id="btMDeepSea_verticalSt" style="display: block; float:right; margin: 0px 0px 0px 0px;" class="divMDS_textsps">IDLE</span>
+        <span></span>
+      </td>
+      <td rowspan="2">
+        <span></span>
+        <input id='btMDeepSea_controllerstop' type='button' value='STOP' class='mds_send mds_critical'> 
+      </td>
+    </tr>
+    <tr>
+      <td >
+        <span style="display: block; float:left; margin: 0px 0px 0px 0px;" class="divMDS_textsps">Horizontal: </span>
+        <span id="btMDeepSea_horizontalSt" style="display: block; float:right; margin: 0px 0px 0px 0px;" class="divMDS_textsps">IDLE</span>
+        <span></span>
+      </td>
+    </tr>
+  </table>
+  <span class="mds_separator">Thrusters</span>
+  <div class="mds_container">
+    <span></span>
+    <input id='btMDeepSea_stpthr' type='button' value='STOP' class='mds_send mds_critical'> 
+    <input id='btMDeepSea_fullupthr' type='button' value='FULL UP' class='mds_send mds_critical'>
+    <span></span>
+  </div>
+  <span class="mds_separator">Weight Release</span>
+  <div class="mds_container">
+    <span></span>
+    <input id='btMDeepSea_rlsback' type='button' value='BACK' class='mds_send mds_critical'> 
+    <input id='btMDeepSea_rlsfront' type='button' value='FRONT' class='mds_send mds_critical'> 
+    <span></span>
+  </div>
+<!--   <table style="border: none;">
+    <tr>
+      <td style="text-align: center;">
+        <input id='btMDeepSea_rlsfront' type='button' value='FRONT' class='mds_send mds_critical'> 
+      </td>
+      <td rowspan="2" style="text-align: center;">
+        <input id='btMDeepSea_rlsboth' type='button' value='BOTH' class='mds_send mds_critical'  > 
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">
+        <input id='btMDeepSea_rlsback' type='button' value='BACK' class='mds_send mds_critical'>
+      </td>
+    </tr>
+  </table>   -->
+  <span class="mds_separator">Status</span>
+  <textarea id="txtMDeepSea_status" readonly="true">No Status Received</textarea>
+</div>
+</div>
+</body>
+</html>

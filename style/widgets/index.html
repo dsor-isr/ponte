@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--  <!DOCTYPE html> -->
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <head>
+    <link rel="stylesheet" href="compass/compass.css" type="text/css" />
+    <link rel="stylesheet" href="speedmeter/speedmeter.css" type="text/css" />
+    <link rel="stylesheet" href="indicator/indicator.css" type="text/css" />
+    <link rel="stylesheet" href="bar/bar.css" type="text/css" />
+	</head>
+  <style>
+      body {
+          background-color: #444444;
+      }
+  </style>
+  <script type="text/javascript" src="compass/compass.js"></script>
+  <script type="text/javascript" src="speedmeter/speedmeter.js"></script>
+  <script type="text/javascript" src="indicator/indicator.js"></script>
+  <script type="text/javascript" src="bar/bar.js"></script>
+  <script>
+    function init(){
+      setInterval(speedmeter_update, 100);
+      setInterval(compass_update, 100);
+      setInterval(bar_update, 100);
+
+      setInterval(indicator_update, 500);
+      /*setInterval(indicator_update(document.getElementById("indicator_img_imu")), 1000);
+      setInterval(indicator_update(document.getElementById("indicator_img_dvl")), 1000);
+      setInterval(indicator_update(document.getElementById("indicator_img_leak")), 1000);
+      setInterval(indicator_update(document.getElementById("indicator_img_bat")), 1000);
+      setInterval(indicator_update(document.getElementById("indicator_img_pressure")), 1000);*/
+    }
+  </script>
+<body onload="init()">
+  <div id="widgets">
+    <table>
+      <tr>
+        <td colspan="3">
+          <p style="text-align: center"> mred</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <!-- Compass Widget -->
+          <div class="compass">
+            <img class="compass_back" src="compass/compass_back.png" >
+            <img id="compass_pointer_ref" class="compass_pointer_ref" src="compass/pointer_reference.png" >
+            <img id="compass_pointer" class="compass_pointer" src="compass/pointer_actual.png" >
+            <span id="compass_value">270&deg;</span>
+            <span id="compass_value_ref">45&deg;</span>
+          </div>
+        </td>
+        <td>
+          <!-- Speedmeter Widget -->    
+          <div class="speedmeter">
+            <img class="speedmeter_back" src="speedmeter/speedmeter_back.png" >
+            <img id="speedmeter_pointer_ref" class="speedmeter_pointer_ref" src="speedmeter/speedmeter_ref.png" >
+            <img id="speedmeter_pointer" class="speedmeter_pointer" src="speedmeter/speedmeter_actual.png" >
+            <span id="speedmeter_value">0.5</span>
+            <span id="speedmeter_value_ref">0.2</span>
+          </div>
+        </td>
+        <td>
+          <!-- Speedmeter Widget TODO: Virtual Horizon-->    
+<!--            <div class="speedmeter">
+            <img class="speedmeter_back" src="speedmeter/speedmeter_back.png" >
+            <img id="speedmeter_pointer_ref" class="speedmeter_pointer_ref" src="speedmeter/speedmeter_ref.png" >
+            <img id="speedmeter_pointer" class="speedmeter_pointer" src="speedmeter/speedmeter_actual.png" >
+            <span id="speedmeter_value">0.5</span>
+            <span id="speedmeter_value_ref">0.2</span>
+          </div> -->
+        </td>
+      </tr>
+
+      <tr>
+        <td colspan="2">
+          <div class="container_bar" >
+            <div class="bar">
+              <span id="bar_HCM" class="bar_progress">0</span>
+            </div>
+            <div class="bar">
+              <span class="bar_progress">0</span>
+            </div>
+            <div class="bar">
+              <span class="bar_progress">0</span>
+            </div>
+            <div class="bar">
+              <span class="bar_progress">0</span>
+            </div>
+          </div>
+        </td>
+        <td>
+        </td>
+      </tr>        
+      <tr>
+        <td>
+          <!-- GPS Widget -->    
+          <div class="indicator">
+            <img id="indicator_img_gps" class="indicator_img" src="indicator/indicator_red.png" >
+            <span id="indicator_text_gps" class="indicator_text" >GPS</span>
+          </div>
+          <!-- Leaks Widget -->    
+          <div class="indicator">
+            <img id="indicator_img_leaks" class="indicator_img" src="indicator/indicator_red.png" >
+            <span id="indicator_text_leaks" class="indicator_text" >Leaks</span>
+          </div>
+        </td>
+        <td>
+          <!-- IMU Widget -->    
+          <div class="indicator">
+            <img id="indicator_img_imu" class="indicator_img" src="indicator/indicator_orange.png" >
+            <span id="indicator_text_imu" class="indicator_text" >IMU</span>
+          </div>
+          <!-- DVL Widget -->    
+          <div class="indicator">
+            <img id="indicator_img_dvl" class="indicator_img" src="indicator/indicator_orange.png" >
+            <span id="indicator_text_dvl" class="indicator_text" >DVL</span>
+          </div>
+        </td>
+        <td>
+          <!-- BAT Widget -->    
+          <div class="indicator">
+            <img id="indicator_img_bat" class="indicator_img" src="indicator/indicator_green.png" >
+            <span id="indicator_text_bat" class="indicator_text" >BAT</span>
+          </div>
+          <!-- PRESSURE Widget -->    
+          <div class="indicator">
+            <img id="indicator_img_pressure" class="indicator_img" src="indicator/indicator_red.png" >
+            <span id="indicator_text_pressure" class="indicator_text" >Pressure</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

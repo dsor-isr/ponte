@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--  <!DOCTYPE html> -->
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <head>
+    <style>
+      div.bar {
+        height: 80px;
+        width: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid black;
+        position: relative;
+        /*background: url("bar_green.png") repeat-y;*/
+        background: -webkit-linear-gradient(90deg,#0d7e05, #6ce05a); /* For Safari 5.1 to 6.0 */
+        background: -o-linear-gradient(90deg, #0d7e05, #6ce05a); /* For Opera 11.1 to 12.0 */
+        background: -moz-linear-gradient(90deg, #0d7e05, #6ce05a); /* For Firefox 3.6 to 15 */
+        background: linear-gradient(90deg, #0d7e05, #6ce05a); /* Standard syntax (must be last) */
+        background-size: 20px 80px;
+      }
+
+      #bar_progress {
+        position: absolute;
+        display: table-cell;
+        border: 1px solid black;
+        line-height: 15px;
+        text-align: center; 
+        vertical-align: bottom;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        color: white;
+        font-size: 11pt;
+        font-weight: bold;
+        /*bottom: -1;*/
+        top: -1;
+        height: 70%;
+        width: 100%;
+        left:-1;
+        right:0;
+        z-index: 1;
+        /*background: url("bar_red.png") repeat-y;*/
+        background: -webkit-linear-gradient(90deg,#e55e5f, #7e0405); /* For Safari 5.1 to 6.0 */
+        background: -o-linear-gradient(90deg, #e55e5f, #7e0405); /* For Opera 11.1 to 12.0 */
+        background: -moz-linear-gradient(90deg, #e55e5f, #7e0405); /* For Firefox 3.6 to 15 */
+        background: linear-gradient(90deg, #e55e5f, #7e0405); /* Standard syntax (must be last)*/
+        background-size: 30px 100px;
+      }
+    </style>
+    
+    <script>
+      var value = 0.90;
+      function bar_update(value_in){
+          if(value_in==undefined){
+            value += 0.01;
+            ;
+          }
+          if(value>1) value -=1;
+          var bar_progress = document.getElementById("bar_progress");
+          bar_progress.innerHTML =(value*100).toFixed(0);
+          bar_progress.style['height'] =((1-value)*100).toFixed(0)+'%';
+          bar_progress.style['line-height'] =((1-value)*80*2-12).toFixed(0)+'px';
+
+      }
+      
+    </script>
+
+  </head>
+
+<body  onload="setInterval(bar_update, 100);">
+  <div class="bar">
+    <span id="bar_progress">0</span>
+  </div>
+</body>
+</html>

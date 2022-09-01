@@ -1,0 +1,69 @@
+Project: C:\downloads\my_new_task2.umd
+Log begin......v=9.22
+Now time is:20-02-2017 13:51:15
+
+[MapsType]
+MapsType=1
+
+Left Longitude  input= -9,099333
+Right Longitude input= -9,098418
+Top Latitude    input= 38,760162
+Bottom Latitude input= 38,759466
+
+MinX = 248892
+MinY = 200820
+MaxX = 248893
+MaxY = 200821
+
+Left Longitude  download=-9,09942626953125
+Right Longitude download=-9,09805297851563
+Top Latitude    download=38,7605086657749
+Bottom Latitude download=38,7594378070601
+
+All lat/long information of tiles are saved to C:\downloads\my_new_task2_list*.txt
+
+Total count of images would be downloaded: 4
+
+Zoom level: 19
+
+path: C:\downloads\
+
+Start downloading...
+-----------------------------------------
+Writing list file, please wait...this may take some time...
+Writing list file OK!
+
+Writing status file, please wait...this may take some time...
+Write status file OK!
+
+Initializing array, please wait...this may take some time...
+Initializing array OK!
+ 
+T0 gs_248892_200820_19.jpg: OK
+T1 gs_248892_200821_19.jpg: OK
+
+Checking missing tiles and re-download them, please wait...
+
+T2 gs_248893_200820_19.jpg: OK
+T3 gs_248893_200821_19.jpg: OK
+
+Checking missing tiles and re-download them, please wait...
+
+
+Now time is:20-02-2017 13:51:20
+Running thread count is:0
+
+
+All tiles are downloaded!
+
+
+Now time:20-02-2017 13:51:22
+Writing status file now...please wait...
+Write status file OK.
+
+--------------------------------
+Task finished!
+
+Now time:20-02-2017 13:51:22
+
+Log file has been saved as C:\downloads\my_new_task2_log.txt

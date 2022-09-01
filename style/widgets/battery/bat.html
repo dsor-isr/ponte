@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+    <title>Battery API Demo</title>
+</head>
+<body onload="init();">
+<div id="content">
+    <p>
+        This page contains a little demonstration of the usage of the <a href="http://www.w3.org/TR/battery-status/"
+                                                                         target="_blank">W3C Battery Status API</a>
+        specification in
+        conjunction with
+        the <a href="http://www.w3.org/TR/html5/" target="_blank">HTML5</a> <a href="http://www.w3.org/TR/2dcontext/"
+                                                                               target="_blank">2D Canvas API</a> to
+        build a simple battery status indicator. The indicator will react on changes
+        to the battery
+        level, charging state (wether it is connected to a power supply or not) and the charging resp. discharging
+        times.
+    </p>
+    <canvas id="battery" width="300" height="150">
+        <p>Your browser seem not to support the HTML5 canvas api.</p>
+    </canvas>
+</div>
+<script type="text/javascript">
+/**
+ * BatteryDemo module
+ * @type {*|{}}
+ */
+var BatteryDemo = BatteryDemo || {};
+
+/**
+ * Battery Demo Application
+ *
+ * Allows for some basic customizations via config object:
+ *
+ *  canvas - reference to canvas element
+ *  backgroundColor - background color
+ *  threshold.critical - threshold for critical level
+ *  threshold.warning - threshold for warning level
+ *  indicator.critical - color for critical level
+ *  indicator.warning - color for warning level
+ *  indicator.normal -  color for normal level
+ *
+ * @param config
+ * @returns {{show: Function, clear: Function}}
+ * @constructor
+ */
+BatteryDemo = function (config) {
+
+    // Initialize canvas
+    var canvas = document.getElementById(config.canvas);
+    var ctx = ( canvas.getContext) ? canvas.getContext('2d') : undefined;
+
+    // check if the 2d context was successfully obtained; otherwise alert user
+    if (typeof(ctx) === 'undefined') {
+        console.error('Could not get 2d context object from canvas.');
+        alert('ERROR: 2d context not supported!');
+    }
+
+    // initialize battery
+    var battery = window.navigator.battery
+            || window.navigator.mozBattery
+            || window.navigator.webkitBattery;
+
+    // check if the battery could be successfully obtained from the runtime environment; otherwise put a notification
+    // message on the canvas
+/*    if (typeof(battery) === 'undefined') {
+        var message = 'Could not get reference to battery - probably the battery API is not supported!';
+
+        ctx.font = '10pt Sans';
+        ctx.strokeStyle = 'black';
+        ctx.fillStyle = 'black';
+        ctx.fillText(message, 100, 50);
+
+        console.error(message);
+    }
+*/
+    // ---------------
+    // Setup callbacks
+    // ---------------
+
+    /*
+     * Callback if the battery level changes
+     * @param event
+     */
+/*    battery.onlevelchange = _eventHandler;*/
+
+    /*
+     * Callback if the charging time changes
+     * @param event
+     */
+/*    battery.onchargingtimechange = _eventHandler;
+*/
+    /*
+     * Callback if the discharging time changes
+     * @param event
+     */
+/*    battery.ondischargingtimechange = _eventHandler;*/
+
+    /*
+     * Callback if the charging state changes
+     * @param event
+     */
+ /*   battery.onchargingchange = _eventHandler;*/
+
+    /**
+     * Gereric event handler for delegating battery events to the update function
+     * @param event
+     */
+    function _eventHandler(event) {
+        console.log('catched event [' + event.type + ']');
+        _update(event.currentTarget);
+    }
+
+    /**
+     * Clear and redraw graphics
+     * @param data
+     * @private
+     */
+    function _update(data) {
+        _clear();
+        bat_level = 0.5;
+        // determine indicator color
+        if (bat_level < config.threshold.critical) {
+            ctx.fillStyle = config.indicator.critical;
+        }
+        else if (bat_level < config.threshold.warning) {
+            ctx.fillStyle = config.indicator.warning;
+        }
+        else {
+            ctx.fillStyle = config.indicator.normal;
+        }
+
+        //draw indicator
+        ctx.fillRect(10, 10, bat_level * 250, 50);
+
+        // draw battery frame
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(10, 10, 250, 50);
+
+        // print battery level
+        ctx.font = '12pt Sans';
+        ctx.fillStyle = 'black';
+        ctx.fillText(Number(bat_level * 100).toFixed(1) + '%', 100, 45, 150);
+
+        ctx.font = '10pt Sans';
+
+        // charging time will be given in seconds
+        console.log('Charging time [' + data.chargingTime + ']');
+        var ctxt = 'Battery is charging.';
+        if (data.chargingTime !== Infinity) {
+            var conv = DateUtil.convertHM(data.chargingTime);
+            ctxt = 'Time until fully loaded: ' + conv.hours + ':' + conv.minutes + '  .';
+        }
+        ctx.fillText(ctxt, 10, 80, 240);
+
+        // discharing time will be given in seconds
+        console.log('Discharging time [' + data.dischargingTime + ']');
+        var dtxt = 'Connected to AC.';
+        if (data.dischargingTime !== Infinity) {
+            var conv = DateUtil.convertHM(data.dischargingTime);
+            dtxt = 'Time remaining: ' + conv.hours + ':' + conv.minutes + '  .';
+        }
+
+        ctx.fillText(dtxt, 10, 100, 240);
+
+        console.log('update finished');
+    }
+
+    /**
+     * clear canvas
+     * @private
+     */
+    function _clear() {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.fillStyle = config.backgroundColor;
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.restore();
+        console.log('cleared');
+    }
+
+    /**
+     * Shows the battery widget based initialized with the current battery information.
+     * @private
+     */
+    function _show() {
+        var battery = {'lever':0.5, 'chargingTime':3600, 'dischargingTime':5000, 'charging': false};
+        _update({
+            level: battery.level,                       // current battery level represented by a double 0.0 to 1.0
+            chargingTime: battery.chargingTime,         // remaining time in seconds until completely charged
+            dischargingTime: battery.dischargingTime,   // remaining time in seconds until the battery is fully discharged
+            charging: battery.charging                  // boolean flag if the battery is currently charged
+
+        });
+    }
+
+    return {
+        show: _show,
+        clear: _clear
+    }
+};
+
+/**
+ * DateUtil module
+ * @type {*|{}}
+ */
+var DateUtil = DateUtil || {};
+
+/**
+ * Converts a given amount of seconds into the matching hours and minutes parts
+ * @param seconds
+ * @returns {{hours: string, minutes: string}}
+ */
+DateUtil.convertHM = function (seconds) {
+    var h = Math.floor(seconds / 3600).toFixed(0);
+    var m = Number((seconds % 3600 ) / 60).toFixed(0);
+    return {hours: h, minutes: m };
+};
+
+/**
+ * initialization method
+ */
+function init() {
+    console.log('init');
+    // setup battery demo with some custom values
+    var batt = new BatteryDemo({
+        canvas: 'battery',                          // reference to canvas element
+        backgroundColor: 'rgba(255,255,255,1.0)',   // background color
+        threshold: {
+            critical: 0.15,                         // threshold for critical level
+            warning: 0.20                           // threshold for warning level
+
+        },
+        indicator: {
+            critical: 'rgba(255,0,0,1.0)',          // color for critical level
+            warning: 'rgba(255,255,0,1.0)',         // color for warning level
+            normal: 'rgba(0,255,0,1.0)'             // color for normal level
+        }
+    });
+
+    // draw widget and read initialization values from the battery
+    //batt.show();
+    setInterval(batt.show, 500);
+}
+</script>
+</body>
+</html>

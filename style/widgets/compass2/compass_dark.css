@@ -1,0 +1,104 @@
+/*
+green:  4ecaabff;
+spotify 648f00ff;
+blue:   42a5f5ff;
+pink:   f48fb1ff;
+grey1:  e7eeebff;
+grey    88898cff;
+*/
+
+.compass {
+    position:relative;
+/*    margin:20px;*/
+    width: 80px;
+    height: 80px;
+}
+.compass_arc {
+    position:absolute;
+    top:0;
+    left:0;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    border:10px solid;
+    border-color:transparent #1c1c1f transparent transparent;
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+}
+
+.compass span {
+    font-size: 10px;
+    position: relative;
+    display: block;
+    text-align: center; 
+    vertical-align: middle;
+    max-width: 100%;
+    max-height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    top: 35%;
+    bottom: 35%;
+    left:0;
+    right:0;
+    z-index: 1;
+    color: #88898c;
+}
+
+bar.compass_pointer_ref {
+    max-height: 15%;
+    z-index: 2;
+    /* Due to a bug in the anti-liasing*/
+    -webkit-transform-style: preserve-3d; 
+    -webkit-transform: rotateZ(45deg);
+
+    -moz-transform:rotate(45deg);
+    -o-transform:rotate(45deg);
+    -ms-transform:rotate(45deg);
+    -webkit-backface-visibility: hidden;
+    background: #648f00;
+}
+
+bar.compass_pointer{
+    max-height: 15%;
+    z-index: 3;
+    /* Due to a bug in the anti-liasing*/
+    -webkit-transform-style: preserve-3d; 
+    -webkit-transform: rotateZ(0deg);
+
+    -moz-transform:rotate(0deg);
+    -o-transform:rotate(0deg);
+    -ms-transform:rotate(0deg);
+    -webkit-backface-visibility: hidden;
+    background: #42a5f5;
+}
+
+.compass bar {
+    height: 20px;
+    width: 6px;
+    position: absolute;
+    vertical-align: middle;
+    max-width: 100%;
+    max-height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    top: 0;
+    bottom: 0;
+    left:0;
+    right:0;
+    z-index: 1;
+}
+
+#compass_value_ref {
+    color: #648f00;
+}
+
+#compass_value {
+    color: #42a5f5;
+}

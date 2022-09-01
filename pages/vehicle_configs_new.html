@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Vehicle Configs</title>
+  <!-- <script type="text/javascript" charset="utf-8" src="../scripts/overlay_window.js"></script> -->
+  <!-- <script type="text/javascript" charset="utf-8" src="../scripts/Medusa_MOOS_ROS.js"></script> -->
+  <!-- <script type="text/javascript" charset="utf-8" src="../scripts/Mission_Files.js"></script> -->
+  <link rel="stylesheet" type="text/css" href="../css/materialize.min.css">
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../scripts/Medusa_MOOS_ROS.js"> </script>
+  <script type="text/javascript" src="../js/materialize.min.js"></script>
+  <script src="../js/vehicle_config.js"> </script>
+  <style>
+	.anchor_padding{
+	   display:block;
+	   height:63px; /* this is the height of your header */
+	   margin-top:-63px; /* this is again negative value of the height of your header */
+	   visibility:hidden;
+	}
+  </style>
+</head>
+<body onload="LoadValues(true);">
+  <div class="navbar-fixed">
+    <nav>
+      <div class="nav-wrapper blue-grey darken-1">
+        <a href="#!" class="brand-logo">Vehicle Configuration</a>
+        <ul class="right">
+          <li><a onclick="SaveValues(); CloseWindow(true);"><i class="mdi-navigation-check"></i></a></li>
+          <li><a onclick="CloseWindow(false);"><i class="mdi-navigation-close"></i></a></li>
+        </ul>
+        <ul class="right hide-on-med-and-down">
+          <li class="active"><a href="#sec_configs">Configs</a></li>
+          <li><a href="#sec_select">Select</a></li>
+          <li><a href="#sec_graph">Graphics</a></li>
+          <li><a href="#sec_vid">Vehicle Identification</a></li>
+          <li><a href="#sec_vars">Variables</a></li>
+          <li><a href="#sec_wp">WayPoints</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <span class="anchor_padding" id="sec_configs"></span>
+  <div class="section" id="sec_configs_container">
+      <input type='button' onclick="document.getElementById('Conf_file_up').click();" value='Import'>
+      <input type="file" id="Conf_file_up" class="" style="display:none"/> 
+      <input type='button' onclick="export_Configs();" value='Export' class=''> <br>
+  </div>
+  <span class="anchor_padding" id="sec_select"></span>
+  <div class="section" id="sec_select_container">
+    <div class="row">
+      <form id="vehicle_select" action="#">
+        <p>
+          <input name="group1" type="radio" id="test1" />
+          <label for="test1">Red</label>
+        </p>
+        <p>
+          <input name="group1" type="radio" id="test2" />
+          <label for="test2">Yellow</label>
+        </p>
+        <p>
+          <input name="group1" type="radio" id="test3"  />
+          <label for="test3">Green</label>
+        </p>
+      </form>
+    </div>
+    <a class="waves-effect waves-light btn" onclick="AddVehicle();"><i class="mdi-content-add left"></i>Add Vehicle</a>
+    <a class="waves-effect waves-light btn" onclick="DeleteVehicle();"><i class="mdi-content-remove left"></i>Delete Vehicle</a>
+  </div>
+  <div class="divider"></div>
+  <span class="anchor_padding" id="sec_graph"></span>
+  <div class="section" id="sec_graph_container">
+    <h5>Graphics</h5>
+    <div class="row">
+      <form>
+        <div class="col">
+        <input type="checkbox" id="toggleDisplay" onchange="onChangeValues(this);"/>
+        <label for="toggleDisplay">Display</label>
+        </div>
+        <div class="col">
+        <img id="vehicle_image" height="33px" src="style/images/AUVm.png"/>
+        </div>
+        <div class="col">
+        <input type='file' onchange="readFile(this);" value='Select'>
+        </div>
+        <div class="col">
+        <input type="checkbox" id="toggleIcon" onchange="onChangeValues(this);"/>
+        <label for="toggleIcon">Disable Icon</label>
+        </div>
+        <div class="col">
+        Path Color: <input type="color" id="pathcolor" name="pathcolor" value="#ff0000" onchange="onChangeValues(this);">
+        <input id="toggleTrailType" type="checkbox" onchange="onChangeValues(this);"/>
+        <label for="toggleTrailType"> Path Points </label>
+        </div>
+        <div class="col">
+        <input type="checkbox" id="toggleMDSPanel" onchange="onChangeValues(this);"/>
+        <label for="toggleMDSPanel">MDS Panel</label>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <span class="anchor_padding" id="sec_vid"></span>
+  <div class="section" id="sec_vid_container">
+    <h5>Vehicle Identification</h5>
+    <div class="row col s12">
+      <form>
+        <div class="col s4">
+        <input type="checkbox" id="toggleActive" onchange="onChangeValues(this);"/>
+        <label for="toggleActive">Active</label>
+        </div>
+        <div class="input-field col s4">
+          <input value="mred" id="vehicle_name" type="text" class="validate" onchange="onChangeValues(this);">
+          <label class="active" for="vehicle_name">Vehicle Name</label>
+        </div>
+        <div class="input-field col s4">
+          <input value="192.168.1.31" id="txtIP" type="text" class="validate" onchange="onChangeValues(this);">
+          <label class="active" for="vehicle_name">Vehicle IP</label>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <span class="anchor_padding" id="sec_vars"></span>
+  <div class="section" id="sec_vars_container">
+    <h5>Variables to ask</h5>
+    <div class="row">
+      <div class="col s6">
+        <input value="State" id="newtopic" type="text" class="validate" onchange="onChangeValues(this);">
+      </div>
+      <div class="col s6">
+        <a class="waves-effect waves-light btn" onclick="addNewVar();"><i class="mdi-content-add left"></i>Add</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        Ask
+        <div class="input-field">
+          <select id="varstoask" class="browser-default" size="14" style="height: 300px;" multiple><option value="State">State</option><option value="BatMonit/BatMonit">BatMonit/BatMonit</option><option value="Leak1">Leak1</option><option value="Leak2">Leak2</option><option value="Flag">Flag</option><option value="Altimeter">Altimeter</option><option value="Altitude">Altitude</option><option value="LoadCell">LoadCell</option></select>
+        </div>
+      </div>
+      <div class="col valign-wrapper">
+        <div class="valign-wrapper">
+          <h5 class="valign" onclick="addforaskvars();"><i class="mdi-navigation-arrow-back"></i></h5>
+          <h5 class="valign" onclick="delfromaskvars();"><i class="mdi-navigation-arrow-forward"></i></h5>
+        </div>
+      </div>
+      <div class="col">
+        Spare
+        <select id="morevars" class="browser-default" size="14" width="200px" style="height: 300px" multiple>
+        </select>
+      </div>
+      <div class="col">
+        Detailed Info
+        <form>
+          <p>
+            <input type="checkbox" id="ask_gps" onchange="DetailedInfo('GPS',this);"/>
+            <label for="ask_gps">GPS</label>
+          </p>
+          <p>
+            <input type="checkbox" id="ask_imu" onchange="DetailedInfo('IMU',this);"/>
+            <label for="ask_imu">IMU</label>
+          </p>
+          <p>
+            <input type="checkbox" id="ask_battery" onchange="DetailedInfo('Battery',this);"/>
+            <label for="ask_battery">Battery</label>
+          </p>
+          <p>
+            <input type="checkbox" id="ask_thrusters" onchange="DetailedInfo('Thrusters',this);"/>
+            <label for="ask_thrusters">Thrusters</label>
+          </p>
+          <p>
+            <input type="checkbox" id="ask_pressure" onchange="DetailedInfo('Pressure',this);"/>
+            <label for="ask_pressure">Pressure</label>
+          </p>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <a onclick="SelectList();" class="waves-effect waves-light btn">Select from list</a>
+      </div>
+      <div class="col">
+        Topic Name for Position:
+      </div>
+      <div class="col">
+        <a id="Postopic" onchange="onChangeValues(this)" class="btn-flat disabled">State</a>
+      </div>
+      <div class="col">
+        from:
+      </div>
+      <div class="col">
+        <select class="browser-default" id="vehiclesource" onchange="onChangeValues(this)">
+        </select>
+      </div>
+<!--       <div class="col">
+        <select id="vehiclesource" onchange="onChangeValues(this)">
+        </select>
+      </div> -->
+
+<!--       <div class="input-field col">
+        <select id="vehiclesource" onchange="onChangeValues(this)">
+        </select>
+      </div> -->
+    </div>
+  </div>
+  <div class="divider"></div>
+  <span class="anchor_padding" id="sec_wp"></span>
+  <div class="section" id="sec_wp_container">
+    <h5>Waypoint Configuration</h5>
+    <div class="row col s12">
+      <form>
+        <div class="col s4">
+          ctrl+alt+j
+        </div>
+        <div class="input-field col s4">
+          <input value="-1" id="XJ" type="text" class="validate" onchange="onChangeValues(this);">
+        </div>
+        <div class="input-field col s4">
+          <input value="-1" id="YJ" type="text" class="validate" onchange="onChangeValues(this);">
+        </div>
+      </form>
+    </div>
+    <div class="row col s12">
+      <form>
+        <div class="col s4">
+          ctrl+alt+k
+        </div>
+        <div class="input-field col s4">
+          <input value="-1" id="XK" type="text" class="validate" onchange="onChangeValues(this);">
+        </div>
+        <div class="input-field col s4">
+          <input value="-1" id="YK" type="text" class="validate" onchange="onChangeValues(this);">
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+  $(document).ready(function() {
+    $('select').material_select();
+  });
+  document.getElementById('Conf_file_up').addEventListener('change', readBlob, false);
+  </script>
+</body>
+</html>

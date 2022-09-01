@@ -1,0 +1,12 @@
+#Version Number
+3
+#Xrefpoint, Yrefpoint, Zone
+491952.326 4290847.696 29S
+#FORMATION 1 0 0 2 0 10 
+#LINE xInit yInit xEnd yEnd velocity <user data>
+#ARC xInit yInit xCenter yCenter xEnd yEnd velocity adirection radius <user data>
+#POINT -50 0.000 1.5 -1 -1 5 2
+LINE -9.96 0.87 9.90 -0.87 0.30 -1.00 -333.00
+ARC 9.90 -0.87 9.09 -10.83 -0.87 -9.90 0.30 -1.00 10.00 -1.00 -333.00
+LINE -0.87 -9.90 0.87 9.96 0.30 -1.00 -333.00
+ARC 0.87 9.96 -9.09 10.83 -9.96 0.87 0.30 1.00 10.00 -1.00 -333.00

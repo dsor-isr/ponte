@@ -1,0 +1,63 @@
+# The 1st line is the mission file format version. For now, it's an integer.
+3
+#
+#
+# The 2nd line defines the reference point UTM coordinates and the UTM Zone.
+491964 4290822 29S
+# FORMATION id1 x1 y1 id2 x2 y2 x3 y3 .....
+# FORMATION - string, instruction type definition, must be "FORMATION" to define a formation for the vehicles;
+#  x points towards the path and y in perpendicular left of x
+#  id1- int, the id relative to the vehicle 1
+#  x1 - double, the relative x of the vehicle 1 to the nominal path
+#  y1 - double, the relative y of the vehicle 1 to the nominal path
+#  id2- int, the id relative to the vehicle 2
+#  x2 - double, the relative x of the vehicle 2 to the nominal path
+#  y2 - double, the relative y of the vehicle 2 to the nominal path
+#  ..... as many as the number of vehicles
+FORMATION 1 0 10 2 -10 -10 
+# LINE xInit yInit xEnd yEnd velocity <nVehicle> <user data>
+#  LINE - string, instruction type definition, must be "LINE" to define a line;
+#  xInit - double, the x position in meters of the start point of the line;
+#  yInit - double, the y position in meters of the start point of the line;
+#  xEnd - double, the x position in meters of the end point of the line;
+#  yEnd - double, the y position in meters of the end point of the line;
+#  velocity - double, desired speed value, in m/s
+#  <nVehicle> - optional integer, defines the ID of the vehicle witch the mission is reffered to, this number is used only if the "FORMATION" was not defined previously;
+#  <user data> - optional unformatted user data, see general description above;
+#
+# ARC xInit yInit xCenter yCenter xEnd yEnd velocity adirection radius <user data>
+#  ARC - string, instruction type definition, must be "ARC" to define an arc;
+#  xInit - double, the x position in meters of the start point of the arc;
+#  yInit - double, the y position in meters of the start point of the arc;
+#  xCenter - double, the x position in meters of the center point of the arc's circumference;
+#  yCenter - double, the y position in meters of the center point of the arc's circumference;
+#  xEnd - double, the x position in meters of the end point of the arc;
+#  yEnd - double, the y position in meters of the end point of the arc;
+#  velocity - double, desired speed value, in m/s;
+#  dir - integer, represents the direction of the arc. Accepted values are:
+#          a) -1 - arc executed clockwise;
+#          b) 1 - arc executed anti clockwise;
+#  radius - double, the value of the arc's radius. Used by legacy parsers and for computational ease;
+#  <nVehicle> - optional integer, defines the ID of the vehicle witch the mission is reffered to
+# if this number is diferent from -1 will not be changed by the FORMATION but will appear in the mission
+# -1 means that it has to be used for all the vehicles 
+#  <user data> - optional unformatted user data, see general description above;
+#Ponto_inicial_X Ponto_inicial_Y Ponto_Centro_X Ponto_Centro_Y Ponto_final_X Ponto_final_Y Velocidade_m/s Constante_K Raio_do_arco
+LINE 0 20 -50 20 0.5 
+ARC -50 20 -50 0 -50 -20 0.5 1 20 
+LINE -50 -20 0 -20 0.5 
+#  POINT - this command/task can be used to: i) hold position nearby the current position for a fixed or indefinite amount of time; ii) to go to a point far away at a given speed and stay there (includes slowing down before reaching the point); or iii) to go to a point at a given speed until it reaches the point and jumps to the next command/task. In the first two cases it is possible to specify or not the desired heading while the vehicle is keeping the position.
+#  POINT xInit yInit radius velocity heading time <nVehicle> <user data>
+#  POINT - string, instruction type definition, must be "POINT" to define a point;
+#  xEnd - double, the x position of the point, in meters;
+#  yEnd - double, the y position of the point, in meters;
+#  radius - double, the radius of the circle in meters where it should be considered as on top of the point;
+#  velocity - double, speed value in m/s, at which the vehicle should move towards the point; It is ignored when the vehicle is holding the position and it is within a predefined vicinity of the point (this vicinity is a specific vehicle parameter, not part of the mission file) (-1 means automatic calculation of the speed);
+#  heading - integer, value of the desired heading in degress when the vehicle is keeping the position, between {0, 259}; Can be -1 to indicate that the controller is free to choose the heading.
+#  time - integer, value in seconds, representing the time the vehicle must stay at the point. Accepted values are:
+#          a) 0 - proceed immediately to next instruction, do not slow down when reaching the point;
+#          b) -1 - stay indefinitely at the point, possibly waiting for user level instructions/events;
+#          c) x>0 - stay x seconds at the point;
+#  <nVehicle> - optional integer, defines the ID of the vehicle witch the mission is reffered to (-1 means any vehicle);
+#  <user data> - optional unformatted user data, see general description above;
+POINT 50 50 1.5 -1 -1 -1 -1 

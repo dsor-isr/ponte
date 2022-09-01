@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Vehicle Actions</title>
+  <link rel="stylesheet" type="text/css" media="all" href="../css/materialize.min.css">
+  <script type="text/javascript" src="../scripts/basic.js"></script>
+  <script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="../js/materialize.min.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../scripts/Medusa_MOOS_ROS.js"> </script>
+  <script>
+    var valueschanged = false;
+    var VehiclesData = new Array();
+    var ROS_VARS = new Array();
+    var ROS_SPARE_VARS = new Array();
+    var VehiclesID=0;
+    var display_flags;
+    var VCurr=1;
+    var VehicleServer;
+ 
+  /*
+    Mission to 
+  */
+  var disabled_color_class="blue-grey lighten-3";
+  function activateVehicle(ind_button, ind_vehicle){
+    $.each($('#div_vehicle_selection a'), function( index, value ) {
+      if(index==ind_button){
+        $(value).removeClass(disabled_color_class);
+        $(value).addClass('cyan lighten-1');
+        VCurr=parseInt(ind_vehicle)+1;
+        newIP();
+      }else{
+        $(value).addClass(disabled_color_class);
+        $(value).removeClass('cyan lighten-1');
+      }
+
+    });
+
+  }
+
+  function VehicleActionsInit(scratch){
+    if(scratch){
+      if(localStorage.ROS_VARS)
+        ROS_VARS = JSON.parse(localStorage.ROS_VARS);
+      if(localStorage.ROS_SPARE_VARS)
+        ROS_SPARE_VARS = JSON.parse(localStorage.ROS_SPARE_VARS);
+      if(localStorage.VehiclesData)
+        VehiclesData = JSON.parse(localStorage.VehiclesData);
+    }
+    $('#div_vehicle_selection').empty();
+    var flag_first=true;
+    var index=0;
+    for(var i=0; i<VehiclesData.length; i++){
+      if(!VehiclesData[i].active) continue;
+      $('#div_vehicle_selection').append('<a class="waves-effect waves-light btn '+disabled_color_class+'" onclick="activateVehicle($(this).attr(\'ind_button\'),$(this).attr(\'ind_vehicle\'));" ind_button="'+index+'" ind_vehicle="'+i+'">'+VehiclesData[i].name+'</a>');
+      index++;
+    }
+    if(scratch){
+      $('.dropdown-button').dropdown();
+    }
+    activateVehicle(0, $($('#div_vehicle_selection').children()[0]).attr('ind_vehicle'));
+  }
+
+  function InitMissionsList(){
+    if(localStorage['VehiclesData']){
+      VehiclesData = JSON.parse(localStorage.VehiclesData);
+    }else{
+      return;
+    }
+    var header=document.getElementById('header_row');
+    var content=document.getElementById('content_row');
+    
+    $('#header_row').empty();
+    $('#content_row').empty();
+
+    var num_active_vehicles=0;
+    for(var i=0; i<VehiclesData.length; i++){
+      /*num_active_vehicles+=1;*/
+      if(VehiclesData[i].active ===false) continue;
+      var child = document.createElement("th");
+      child.innerHTML=VehiclesData[i].name;
+      header.appendChild(child);
+
+      var child_td = document.createElement("td");
+      content.appendChild(child_td);
+      var child_iframe = document.createElement("iframe");
+      child_td.appendChild(child_iframe);
+      child_iframe.setAttribute("class", "MList");
+      child_iframe.setAttribute("frameborder", "0");
+      child_iframe.setAttribute("height", "100%");
+      child_iframe.setAttribute("width", "100%");
+      var VehicleURL = getVehicleURL(i);
+      child_iframe.setAttribute("src", VehicleURL+"Missions");
+      child_iframe.innerHTML='<p><font color="red">ERROR:<br> The vehicle did not return the Mission List</font></p>';
+    }
+  }
+
+  function accordion_toggle(wrapper_selector){
+    var innerHTML;
+    if(wrapper_selector=='#body_sensor_plot'){
+      innerHTML = "<iframe src=\'../pages/Sensor_Plot.html\'></iframe>";
+    }else if(wrapper_selector=='#body_vehicle_info'){
+      innerHTML = "<iframe style='width: 100%;' src="+VehicleServer+"/>";
+    }
+    
+    var div = $(wrapper_selector);
+    if(div.attr('opened')=="true"){
+      div.html();
+    }else{
+      localStorage['VARS']=JSON.stringify(VARS);
+      div.html(innerHTML);
+    }
+  }
+
+
+  </script>
+</head>
+<body onload="VehicleActionsInit(true);InitMissionsList();createXMLRequesters();">
+    <header>
+      <nav class="top-nav blue-grey darken-1">
+        <div class="container">
+          <div class="nav-wrapper"><a class="page-title" style="font-size: 36px; font-family: 'Roboto', sans-serif">Vehicle Actions</a></div>
+        </div>
+      </nav>
+    </header>
+    <main>
+    <div class="section">
+    <div id="div_vehicle_selection">
+    </div>
+    </div>
+      <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="Thruster_Wash();">Thruster Wash</a>
+      <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="Thruster_Test();">Thruster Test</a>
+      <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="Power_Shutdown();">Power Shutdown</a>
+      <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="Power_Reboot();">Power Reboot</a>
+      <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="PC_Shutdown();">PC Shutdown</a>
+      <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="Compress_Logs();">Compress Logs</a>
+      <br><br>
+
+   <input id="reporter" type='button' onclick="window.open('../pages/Reporter.html','page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no, width=900,height=400');" value='Reporter'>
+
+    <input id="sensor_plot" type='button' onclick="localStorage['VARS']=JSON.stringify(VARS); window.open('../pages/Sensor_Plot.html','page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no, width=900,height=400');" value='Sensor plot'>
+
+<!--     <input id="missions_list" type='button' onclick="window.open('../pages/Mission_List.html','page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no, width=900,height=400');" value="Missions' List"> -->
+      <br><br>
+
+  <ul class="collapsible" data-collapsible="accordion">
+    <li>
+      <div class="collapsible-header"><i class="mdi-action-list"></i>Missions' List</div>
+      <div class="collapsible-body">
+        <table id="table_VCLS" border="" height="100%" width="100%" cellpadding="0" cellspacing="0" >
+          <tr id="header_row">
+          </tr>
+          <tr height="100%" id="content_row">
+          </tr>
+        </table>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="mdi-content-content-paste"></i>Reporter</div>
+      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+    </li>
+    <li>
+      <div class="collapsible-header" onclick="accordion_toggle('#body_sensor_plot');"><i class="mdi-editor-insert-chart"></i>Sensor Plot</div>
+      <div class="collapsible-body" id="body_sensor_plot" opened="false"><p>Lorem ipsum dolor sit amet.</p></div>
+    </li>
+    <li>
+      <div class="collapsible-header" onclick="accordion_toggle('#body_vehicle_info');"><i class="mdi-action-info-outline"></i>Vehicle Info</div>
+      <!-- TODO: check resize http://stackoverflow.com/questions/819416/adjust-width-height-of-iframe-to-fit-with-content-in-it -->
+      <div class="collapsible-body" id="body_vehicle_info"></div>
+    </li>
+    <li>
+      <div class="collapsible-header" onclick="accordion_toggle('#body_vehicle_info');"><i class="mdi-action-list"></i>Errors List</div>
+      <!-- TODO: check resize http://stackoverflow.com/questions/819416/adjust-width-height-of-iframe-to-fit-with-content-in-it -->
+      <div class="collapsible-body" id="body_vehicle_info"></div>
+    </li>
+  </ul>
+
+    <br>
+    <br>
+    </main>
+    <script>
+    $( document ).ready(function(){
+       $(".button-collapse").sideNav();
+    }) 
+    </script>
+</body>
+</html>

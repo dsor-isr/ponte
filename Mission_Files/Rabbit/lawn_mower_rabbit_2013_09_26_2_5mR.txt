@@ -1,0 +1,17 @@
+#Version
+3
+#Xrefpoint Yrefpoint UTM Zone
+491936.672 4290836.854 29S
+# LINE xInit yInit xEnd yEnd velocity <nVehicle> <gamma> <user data>
+# ARC xInit yInit xCenter yCenter xEnd yEnd velocity adirection radius <nVehicle> <gamma> <user data>
+# POINT xInit yInit radius velocity heading time <nVehicle> <gamma> <user data>
+
+
+# Mission for Vehicle -1
+LINE 0.000 0.000 -50.000 0.000 0.500 -1 50.000
+ARC -50.000 0.000 -50.000 -5.000 -50.000 -10.000 0.500 1 5.000 -1 65.708
+LINE -50.000 -10.000 -0.000 -10.000 0.500 -1 115.708
+ARC -0.000 -10.000 -0.000 -15.000 -0.000 -20.000 0.500 -1 5.000 -1 131.416
+LINE -0.000 -20.000 -50.000 -20.000 0.500 -1 181.416
+ARC -50.000 -20.000 -50.000 -25.000 -50.000 -30.000 0.500 1 5.000 -1 197.124
+LINE -50.000 -30.000 -0.000 -30.000 0.500 -1 247.124

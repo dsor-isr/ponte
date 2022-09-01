@@ -1,0 +1,12 @@
+Left Longitude  download=-28.6276245117188
+Right Longitude download=-28.6111450195313
+Top Latitude    download=38.5438691725515
+Bottom Latitude download=38.53527590822
+
+UTM:
+BL East: 358139.54
+BL Northing: 4266463.20
+
+
+TR East: 359592.65
+TR Northing: 4267391.51

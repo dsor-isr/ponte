@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Vehicle Configuration</title>
+  <link rel="stylesheet" type="text/css" media="all" href="../css/styles.css">
+  <link rel="stylesheet" type="text/css" media="all" href="../style/dropdown.css">
+  <link rel="stylesheet" type="text/css" media="all" href="../css/pure/pure-min.css">
+  <link rel="stylesheet" type="text/css" media="all" href="../css/pure/grids-responsive-min.css">
+  <style>
+    html, body, div, span, object,
+    form, input, h1, h2, button, label, a, img {
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      /* this will work for QtWebKit in future */
+      -webkit-user-drag: none;
+    }
+    input[type=text] {
+      -moz-user-select: text;
+      -webkit-user-select: text;
+    }
+  </style>
+  <script type="text/javascript" charset="utf-8" src="../scripts/Medusa_MOOS_ROS.js"> </script>
+  <script>
+  var formation = [];
+  var missionSpeed = 0;
+  var valueschanged = false;
+  var standard_mission_flag = false;
+  function LoadValues(scratch){
+    VehiclesData = [];
+    if(localStorage.VehiclesData)
+      VehiclesData = JSON.parse(localStorage.VehiclesData);
+
+    final_formation = [];
+    if(localStorage.mdconf_formation)
+      final_formation = JSON.parse(localStorage.mdconf_formation);
+
+    final_mission = [];
+    if(localStorage.mdconf_mission)
+      final_mission = JSON.parse(localStorage.mdconf_mission);
+
+    standard_mission_flag = false;
+    if(localStorage.mdconf_standard_mission_flag)
+      standard_mission_flag = JSON.parse(localStorage.mdconf_standard_mission_flag);
+
+    // Delete all segment speed inputs
+    var segments_speed = document.getElementById('segments_speed');
+    while (segments_speed.lastChild.id!="donot_del") {
+      segments_speed.removeChild(segments_speed.lastChild);
+    }
+
+    // Add the segments to change velocity
+    var mean_speed = parseFloat(final_mission[0].value[final_mission[0].dictionary.veloc]), different_speeds = false, first_speed =mean_speed;
+    for(var i=1;i<final_mission.length;i++){
+      // Check if there is different speeds in the segments
+      if(first_speed!=parseFloat(final_mission[i].value[final_mission[i].dictionary.veloc]))
+        different_speeds=true;
+      mean_speed += parseFloat(final_mission[i].value[final_mission[i].dictionary.veloc]);
+    }
+    mean_speed=mean_speed/(final_mission.length); 
+    
+    if(!different_speeds)
+    {
+      missionSpeed = mean_speed;
+    }
+    // For different speeds change each segment individually
+    var toggleVelocity = document.getElementById('toggleVelocity');
+    toggleVelocity.checked = !different_speeds;
+    toggleSpeed(toggleVelocity, mean_speed);
+
+    // Delete all options
+    var mission_vehicles = document.getElementById('mission_vehicles');
+    while (mission_vehicles.firstChild) {
+      mission_vehicles.removeChild(mission_vehicles.firstChild);
+    }
+
+    // Update List
+    for(var i=0;i<VehiclesData.length;i++){
+      var option_child = document.createElement('option');
+      mission_vehicles.appendChild(option_child);
+      option_child.setAttribute('value',VehiclesData[i].name);
+      option_child.innerHTML = VehiclesData[i].name;
+    }
+    if (final_formation.length==0){
+      document.getElementById('toggleVehicles').checked = true;
+    }else{
+      // Deselect toggle button
+      document.getElementById('toggleVehicles').checked = false;
+      Change_Vehicles(document.getElementById('toggleVehicles'));
+      
+      mhv = 0;
+      // deselect all vehicles
+      for(i=0;i<mission_vehicles.children.length;i++){
+        mission_vehicles.children[i].selected = false;
+        // Verify if it is in FORMATION array
+        for(j=0; j<final_formation.length;j=j+3){
+          if((final_formation[j]-1)==i){
+            // Select vehicle
+            mission_vehicles.children[i].selected = true;
+            break;
+          }
+        }
+      }
+      // Update display with selected vehicles
+      changeselect(mission_vehicles);
+      // Update formation bars 
+      for(i=0; i<final_formation.length;i=i+3){
+        range_x = document.getElementById("input_"+mission_vehicles.children[final_formation[i]-1].value+'_x');
+        range_y = document.getElementById("input_"+mission_vehicles.children[final_formation[i]-1].value+'_y');
+        range_x.value=parseFloat(final_formation[i+1]);
+        range_y.value=parseFloat(final_formation[i+2]);
+        changetextRange(range_x);
+        changetextRange(range_y);
+      }
+    }
+  }
+  
+  function onChangeValues(obj){
+
+  }
+
+  function SaveValues(){
+    if(valueschanged){
+      // Generate the formation array
+      final_formation = [];
+      mvhs = document.getElementById("mission_vehicles");
+      for(i=0;i<formation.length;i++){
+        for(j=0;j<mvhs.selectedOptions.length;j++){
+          if(mvhs.selectedOptions[j].label ==formation[i].id){
+            final_formation.push(mvhs.selectedOptions[j].index+1);
+            final_formation.push(formation[i].x);
+            final_formation.push(formation[i].y);
+          }
+        }
+      }
+      localStorage['mdconf_formation']=JSON.stringify(final_formation);
+      localStorage['mdconf_mission']=JSON.stringify(final_mission);
+      localStorage['mdconf_standard_mission_flag']=JSON.stringify(standard_mission_flag);
+      if(document.getElementById("toggleVelocity").checked)
+        localStorage['mdconf_mission_speed']=JSON.stringify(missionSpeed);
+    }
+  }
+  
+  function Change_Vehicles(obj){
+    var mission_vehicles = document.getElementById('mission_vehicles');
+    if(obj.checked){
+      formation = [];
+      mission_vehicles.style['display'] = 'none';
+
+      var formationform = document.getElementById('formationForm');
+      formationform.style['display'] = 'none';
+    }else{
+      mission_vehicles.style['display'] = 'block';
+      mission_vehicles.firstChild.selected = true;
+      formation.push({ 'id':mission_vehicles.firstChild.label, 'x':0.0,'y':0.0}); // First Vehicle
+    }
+    valueschanged = true;
+  }
+  
+  function changetextRange(obj){
+    document.getElementById(obj.id.substring(("input_").length, obj.id.length)).value=parseFloat(obj.value);
+    // Update formation array
+    for(i=0;i<formation.length;i++){
+      if(formation[i].id==obj.id.substring(("input_").length, obj.id.length-2)){
+        if(obj.id.substring(obj.id.length-1, obj.id.length)=='x'){
+          formation[i].x = parseFloat(obj.value);
+        }else{
+          formation[i].y = parseFloat(obj.value);
+        }
+      }
+    }
+    valueschanged = true;
+  }
+
+  function changeRange(obj){
+    document.getElementById("input_"+obj.id).value=obj.value;
+    for(i=0;i<formation.length;i++){
+      if(formation[i].id==obj.id.substring(0, obj.id.length-2)){
+        if(obj.id.substring(obj.id.length-1, obj.id.length)=='x'){
+          formation[i].x = parseFloat(obj.value);
+        }else{
+          formation[i].y = parseFloat(obj.value);
+        }
+      }
+    }
+    valueschanged = true;
+  }
+
+  function changeselect(obj){
+    var formationform = document.getElementById('formationForm');
+
+    var formationnames = document.getElementById('formation_names');
+    var formationx = document.getElementById('formation_x');
+    var formationy = document.getElementById('formation_y');
+    
+    while (formationnames.firstChild) formationnames.removeChild(formationnames.firstChild);
+    while (formationx.firstChild) formationx.removeChild(formationx.firstChild);
+    while (formationy.firstChild) formationy.removeChild(formationy.firstChild);
+
+    if(obj.selectedOptions.length>1){
+      formationform.style['display'] = 'block';
+
+      formationnames.innerHTML += "<td style='vertical-align:middle'>Vehicle</td>"; 
+      formationx.innerHTML += "<td style='vertical-align:middle'>X</td>"; 
+      formationy.innerHTML += "<td style='vertical-align:middle'>Y</td>"; 
+      formation = [];
+      // Adding range inputs
+      for(i=0;i<obj.selectedOptions.length;i++){
+
+        formation.push({ 'id':obj.selectedOptions[i].label, 'x':0.0,'y':0.0});
+        formationnames.innerHTML += "<td style='vertical-align:middle'>"+obj.selectedOptions[i].label+"</td>"; 
+
+        var td_child = document.createElement('td');
+        formationx.appendChild(td_child);
+
+        var option_child = document.createElement('input');
+        option_child.setAttribute('type',"range");
+        option_child.setAttribute('min',"-20");
+        option_child.setAttribute('max',"20");
+        option_child.setAttribute('draggable',"false");
+        option_child.setAttribute('id',obj.selectedOptions[i].label+"_x");
+        option_child.setAttribute('oninput',"changeRange(this);");
+        option_child.setAttribute('onchange',"changeRange(this);");
+        
+        var paragraph_elem = document.createElement('input');
+        paragraph_elem.type = "text";
+        paragraph_elem.size = "5";
+        paragraph_elem.id = "input_"+obj.selectedOptions[i].label+"_x";
+        paragraph_elem.value ="0";
+        paragraph_elem.setAttribute('onchange',"changetextRange(this);");
+
+        td_child.setAttribute('style',"vertical-align:middle");
+        td_child.appendChild(option_child);
+        td_child.appendChild(paragraph_elem);
+        
+        var option_child = document.createElement('input');
+        var td_child = document.createElement('td');
+        
+        option_child.setAttribute('type',"range");
+        option_child.setAttribute('min',"-20");
+        option_child.setAttribute('max',"20");
+        option_child.setAttribute('draggable',"false");
+        option_child.setAttribute('id',obj.selectedOptions[i].label+"_y");
+        option_child.setAttribute('oninput',"changeRange(this);");
+        option_child.setAttribute('onchange',"changeRange(this);");        
+        option_child.innerHTML +="0";
+
+        td_child.setAttribute('style',"vertical-align:middle");
+        td_child.appendChild(option_child);
+        
+        var paragraph_elem = document.createElement('input');
+        paragraph_elem.type = "text";
+        paragraph_elem.size = "5";
+        paragraph_elem.id = "input_"+obj.selectedOptions[i].label+"_y";
+        paragraph_elem.value ="0";
+        paragraph_elem.setAttribute('onchange',"changetextRange(this);");
+        td_child.appendChild(paragraph_elem);
+
+        formationy.appendChild(td_child);        
+      }
+    }else if(obj.selectedOptions.length==1){
+      formation = [];
+      formation.push({ 'id':mission_vehicles.selectedOptions[0].label, 'x':0.0,'y':0.0}); // First Vehicle
+      valueschanged = true;
+    }else{
+      formationform.style['display'] = 'none';
+    }
+  }
+  
+  function ChangeSpeed(obj, index){
+    if(index ==-1)
+    {
+      missionSpeed = parseFloat(obj.value);
+      for(var i=0;i<final_mission.length;i++)
+        final_mission[i].value[final_mission[i].dictionary.veloc] = parseFloat(obj.value);
+    }
+    else
+    {
+      // Change only that segment
+      final_mission[index].value[final_mission[index].dictionary.veloc] = parseFloat(obj.value);
+      standard_mission_flag = false;
+    }
+    valueschanged = true;
+  }  
+
+  function toggleSpeed(obj, speed){
+    // Delete all segment speed inputs
+    var segments_speed = document.getElementById('segments_speed');
+    while (segments_speed.lastChild.id!="donot_del") {
+      segments_speed.removeChild(segments_speed.lastChild);
+    }
+
+    if(!obj.checked){
+      for(var i=0;i<final_mission.length;i++){
+          var input_child = document.createElement('input');
+          var input_child_label = document.createElement('label');
+          segments_speed.appendChild(input_child_label);
+          segments_speed.appendChild(input_child);
+          segments_speed.setAttribute('class','pure-control-group');
+          input_child_label.setAttribute('for','segment_speed'+i);
+          input_child_label.innerHTML=" Segment "+(i+1)+": ";
+          if((i+1)%2 && i!=0) input_child_label.innerHTML="<br>" + input_child_label.innerHTML;
+          input_child.setAttribute('onchange', 'ChangeSpeed(this,'+i+');');
+          input_child.setAttribute('onclick', 'this.select();');
+          input_child.setAttribute('value',final_mission[i].value[final_mission[i].dictionary.veloc]);
+          input_child.setAttribute('type','text');
+          input_child.setAttribute('size',5);
+          input_child.setAttribute('class','pure-radio');
+          input_child.setAttribute('id','segment_speed'+i);
+        }
+    }else{
+       // Add the segments to change velocity
+      var mean_speed = parseFloat(final_mission[0].value[final_mission[0].dictionary.veloc]);
+      if(speed==undefined){
+        for(var i=1;i<final_mission.length;i++){
+          mean_speed += parseFloat(final_mission[i].value[final_mission[i].dictionary.veloc]);
+        }
+        mean_speed=mean_speed/(final_mission.length);   
+      }else{
+        mean_speed = speed;
+      }
+      var input_child = document.createElement('input');
+      var input_child_label = document.createElement('label');
+      segments_speed.appendChild(input_child_label);
+      segments_speed.appendChild(input_child);
+      segments_speed.setAttribute('class','pure-control-group');
+      input_child_label.setAttribute('for','all_segments');
+      input_child_label.innerHTML=" Speed: ";
+      input_child.setAttribute('onchange', 'ChangeSpeed(this,-1);');
+      input_child.setAttribute('onclick', 'this.select();');
+      input_child.setAttribute('value',mean_speed);
+      input_child.setAttribute('type','text');
+      input_child.setAttribute('size',5);
+      input_child.setAttribute('class','pure-radio');
+    }
+
+
+    valueschanged = true;
+  }
+
+  /**
+   * Detailed Info about certain variables (Bat, GPS, IMU, etc.)
+   */
+  function DetailedInfo(name, obj){
+    display_flags[name]=obj.checked;
+  }
+
+  function CloseWindow(apply){
+      window.top.postMessage('CMDCONF='+apply, '*');
+  }
+  </script>
+</head>
+<body onload="LoadValues(true);">
+  <div id="wrapper">
+    <style scoped>
+
+        .button-success,
+        .button-error,
+        .button-warning,
+        .button-secondary {
+            color: white;
+            border-radius: 4px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-success {
+            background: rgb(28, 184, 65); /* this is a green */
+        }
+
+        .button-error {
+            background: rgb(202, 60, 60); /* this is a maroon */
+        }
+
+        .button-warning {
+            background: rgb(223, 117, 20); /* this is an orange */
+        }
+
+        .button-secondary {
+            background: rgb(66, 184, 221); /* this is a light blue */
+        }
+
+    </style>
+    <h1>Mission Design - Configurations</h1>
+    
+    <form class="pure-form">
+      <legend>Nominal Velocity</legend>
+      <div id="segments_speed" class="pure-u-1 pure-u-md-1-3">
+        <div id="donot_del">
+          <input class="button-success pure-button" id="toggleVelocity" type="checkbox" onchange="toggleSpeed(this);"> <span> Same speed for all segments </span>
+        </div>
+        <!-- <input  id="inputSpeed" type="text" placeholder="0.5" onchange=""> -->
+      </div>
+    </form>
+    <form class="pure-form">
+    <legend>Vehicles running this mission</legend>
+    <div class="pure-u-1 pure-u-md-1-3">
+        <input class="button-success pure-button" id="toggleVehicles" type="checkbox" onchange="Change_Vehicles(this);"> <span> All </span>
+        <select id="mission_vehicles" size="10" width="200px" style="width: 200px; display:none"  multiple onchange="changeselect(this);"> </select>
+    </div>
+    </form>
+    <form id="formationForm" class="pure-form" style="display: none">
+      <legend>Formation:</legend>
+      <table style="text-align:center; border-spacing: 10px;border-collapse: separate;">
+        <tr id="formation_names">
+        
+        </tr>
+        <tr id="formation_x">
+
+        </tr>
+        <tr id="formation_y">
+        </tr>
+      </table>
+    </form>
+    <form>
+      <input type='button' onclick="CloseWindow(false);" value='Close' class='pure-button'>
+      <input type='button' onclick="SaveValues(); CloseWindow(true);" value='Apply &amp; Close' class='pure-button pure-button-primary'>
+    </form>
+  </div>
+  SaveValues();
+  CloseWindow(true);
+</body>
+</html>

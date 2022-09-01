@@ -1,0 +1,527 @@
+<!--  <!DOCTYPE html> -->
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <head>
+  <title>DSOR console</title>
+  <link rel="shortcut icon" href="style/buttons/favicon.png" type="image/png">
+    <link rel="stylesheet" href="style/dropdown.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="style/notification_style.css" />
+    <link rel="stylesheet" href="css/test_overlay.css" type="text/css" />
+    <link rel="stylesheet" href="style/buttons.css" type="text/css" />
+    <link rel="stylesheet" href="style/map_menu.css" type="text/css" />
+    <link rel="stylesheet" href="style/widgets/compass2/compass.css" type="text/css" />
+    <link rel="stylesheet" href="style/widgets/speedmeter2/speedmeter.css" type="text/css" />
+    <link rel="stylesheet" href="style/widgets/battery/battery.css" type="text/css" />
+    <link rel="stylesheet" href="style/sidebar.css" type="text/css" />
+    <link rel="stylesheet" href="style/divMDS.css" type="text/css" />
+
+    <script type="text/javascript" src="scripts/basic.js"></script>
+    <script type="text/javascript" src="scripts/proj4js-master/dist/proj4.js"></script>
+    <script type="text/javascript" src="scripts/dropdown.js"></script>
+    <script type="text/javascript" src="scripts/overlay_window.js"></script>
+    <script type="text/javascript" src="scripts/notification_box.js"></script>
+    <script type="text/javascript" src="scripts/latlon_utm.js"></script>
+    <script type="text/javascript" src="scripts/Mission_Files.js"></script>
+    <script type="text/javascript" src="scripts/Medusa_MOOS_ROS.js"></script>
+    <script type="text/javascript" src="scripts/Mission_Planning.js"></script>
+    <script type="text/javascript" src="scripts/Mission_Planning_UI.js"></script>
+    <script type="text/javascript" src="scripts/Mission_Definition.js"></script>
+    <script type="text/javascript" src="scripts/sensors.js"></script>
+    <script type="text/javascript" src="scripts/designMenutab.js"></script>
+    <script type="text/javascript" src="scripts/fast_menu.js"></script>
+
+    <!-- Materialize -->
+  <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection">
+  <!-- div logbook comment -->
+  <link rel="stylesheet" href="style/logdiv.css" type="text/css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <script src="js/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+  <!-- <script type="text/javascript" src="js/materialize.js"></script> -->
+    
+    <!-- Sensor Plot -->  
+<!--     <script language="javascript" type="text/javascript" src="flot/jquery.js"></script>--> <!-- conflict with newer jquery 2.1.1 (instead of 1.5.1) of materialize -->
+    <script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="flot/jquery.flot.resize.js"></script>
+
+    <!-- Mission planning using boxes  -->
+    <script type="text/javascript" src="scripts/mission_box_planning.js"></script>
+    <script type="text/javascript" src="js/scenarios.js"></script>
+    <!-- Widgets -->
+    <script type="text/javascript" src="style/widgets/compass2/compass.js"></script>
+    <script type="text/javascript" src="style/widgets/speedmeter2/speedmeter.js"></script>
+    <script type="text/javascript" src="style/widgets/battery/battery.js"></script>
+    <script type="text/javascript" src="scripts/logdiv.js"></script>
+    <script type="text/javascript" src="scripts/navigation_bar.js"></script>
+  </head>
+  <body onload="Init(); create_list_scenarios(); nav_buttons_init();" onresize="draw(-1,-1,-1,-1);" oncontextmenu="return false;">
+  <img id="imgCompass" src="style/other/rosadosventos.png" style="display: none"/>
+  	<div id="divlogcomment" >
+  		<p style="text-align: center;" class="logcomment"> LogBook entry </p>
+  		<form id="insert_comment">
+	  		<input type="text" id="logbook_address" name="addres" placeholder="remote address (ip or name)" class="logcomment"/>
+	  		<input type="text" id="logbook_comment" name="comment" placeholder="logbook comment" autocomplete="off" class="logcomment"/>
+  		</form>
+  	</div>
+    <!-- Right click menu -->
+    <div id="div_menu" class="map_menu map_menu_hidden">
+      <a href="javascript:void(0)" onclick="menu_pointCallback();">Point</a>
+      <a id="fast_menu_gohere" href="javascript:void(0)" onclick="menu_gohereCallback();">Go Here</a>
+      <a id="fast_menu_courseline" href="javascript:void(0)" onclick="menu_courselineCallback();">Course Line</a>
+      <!-- <a href="javascript:void(0)" onclick="Point=true; CaddyDiver=true; canvasClick(mouse_down_obj,mouse_down_event);">Diver Go Here</a> -->
+      <a href="javascript:void(0)" onclick="menu_clearCallback(); ">Clear All</a>
+    </div>
+
+    <!-- Hover vehicle Info menu -->
+    <div id="div_vehicle_info_menu" class="vehicle_info_menu_hidden">
+      <table class="info_menu_table no_padding">
+        <tr><td colspan="2"><p id="vhinfo_title" class="title">mred</p></td></tr>
+        <tr><td><p class="text_list">NAV:</p></td><td><p id="vhinfo_gps_mode" class="text_list">RTK</p></td></tr>
+        <tr><td><p class="text_list">MODE:</p></td><td><p id="vhinfo_op_mode" class="text_list">WP</p></td></tr>
+        <tr><td><p class="text_list">BAT:</p></td><td><p id="vhinfo_battery" class="text_list">0%</p></td></tr>
+        <tr><td><p class="text_list">PRESSURE:</p></td><td><p id="vhinfo_inpressure" class="text_list">0mBar</p></td></tr>
+        <tr><td><p class="text_list">Upper Leak:</p></td><td><p id="vhinfo_upperleak" class="text_list">true</p></td></tr>
+        <tr><td><p class="text_list">Lower Leak:</p></td><td><p id="vhinfo_lowerleak" class="text_list">true</p></td></tr>
+      </table>
+    </div>
+
+    <!-- Mission programming menu -->
+    <div id="div_mission_programming_menu" class="mission_programming_menu mission_programming_menu_hidden">
+          <div class="missions_buttons_console missions_buttons_header" id="mission_close" title="Close" onclick="mission_design_toggle(false);"></div>
+        <table id="table_header" border="0" cellspacing="0" cellpadding="0" style="width: 100%" class="no_padding">
+          <tr><td colspan="8"cellpadding="0"><div id="mission_move_div"style="background-color: #555555; height:20px; text-align:center; color: #ffffff; vertical-align:middle;">Design Tools</div> </td></tr>
+          <tr>
+          <!--<td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="mission_save_morph" title="Save Mission in MORPH format" onclick="mission_save_morph();"></div></td>-->
+          <td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="upload_mission" title="Upload mission to the vehicles" onclick="mission_box_send_to_vehicle();"></td>
+          <td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="mission_conf" title="Mission Configurations" onclick="mission_program_configs();"></div></td>
+          <td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="mission_plus" title="Add leg" onclick="mission_program_add_leg();"></td>
+          <td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="mission_minus" title="Del leg" onclick="mission_program_del_leg();"></td>
+          <td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="mission_next" title="Next Type of mission" onclick="mission_program_next_type();"></td>
+          <td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="mission_moveSingleBt" title="Move a single point in the mission" onclick="mission_moveSingle();" ></td>
+          <td class="mbutton_td"><div class="missions_buttons_console missions_buttons_header" id="mission_clearBt" title="Clear Mission" onclick="mission_clear();" ></td>
+          </tr>
+        </table>
+          <script>
+            var movablediv = document.getElementById("mission_move_div");
+            var movablediv_menu = document.getElementById("div_mission_programming_menu");
+            var mission_div_selected = false;
+            var mission_div_pos_selected = Array(0,0);
+            movablediv.onmousedown = mission_div_mousedown;
+            movablediv.onmouseup = mission_div_mouseup;
+            //movablediv.onmousemove = mission_div_mousemove;
+            function mission_div_mousedown(e){
+              mission_div_selected =true;
+              pos_obj = findPos(movablediv_menu);
+              mission_div_pos_selected = [e.pageX-pos_obj[0],e.pageY-pos_obj[1]]
+              console.log("mission div mouse down");
+            }
+            function mission_div_mouseup(){
+              mission_div_selected =false;
+              console.log("mission div mouse up");
+            }
+
+            window.onmousemove =mission_div_mousemove;
+            function mission_div_mousemove(e){
+              if(mission_div_selected){
+                movablediv_menu.style['top'] = e.pageY-mission_div_pos_selected[1];
+                movablediv_menu.style['left'] = e.pageX-mission_div_pos_selected[0];
+              }
+              //console.log("mission div mouse move");
+            }
+          </script>
+    </div>
+
+    <!-- Design Menu DIV -->
+    <div id="includeDesignMenu_sidebar"  class="sidenav"> </div>
+    <!-- Stop button menu -->
+    <div id="div_stop_button_out" class="stop_button">
+		<a class="btn-floating btn-large waves-effect waves-light red" id="stop_button" onclick="btSTOP();" title="Stop Vehicle [Space]"><i class="mdi-av-pause"></i></a>
+<!--           <script>
+            var movablediv2 = document.getElementById("div_stop_button_out");
+            var movablediv2_menu = document.getElementById("div_stop_button_out");
+            var mission_div_selected = false;
+            var mission_div_pos_selected = Array(0,0);
+            movablediv2.onmousedown = mission_div_mousedown;
+            movablediv2.onmouseup = mission_div_mouseup;
+            //movablediv2.onmousemove = mission_div_mousemove;
+            function mission_div_mousedown(e){
+              mission_div_selected =true;
+              pos_obj = findPos(movablediv2_menu);
+              mission_div_pos_selected = [e.pageX-pos_obj[0],e.pageY-pos_obj[1]]
+              console.log("mission div mouse down");
+            }
+            function mission_div_mouseup(){
+              mission_div_selected =false;
+              console.log("mission div mouse up");
+            }
+
+            window.onmousemove =mission_div_mousemove;
+            function mission_div_mousemove(e){
+              if(mission_div_selected){
+                movablediv2_menu.style['top'] = e.pageY-mission_div_pos_selected[1];
+                movablediv2_menu.style['left'] = e.pageX-mission_div_pos_selected[0];
+              }
+              //console.log("mission div mouse move");
+            }
+          </script> -->
+    </div>
+
+    <!-- menu button -->
+    <table id="whole_page_table" class='resizable no_padding' frame="void" border="1" cellspacing="0" cellpadding="0">
+      <tr>
+        <td colspan="4" cellpadding="0">
+          <textarea rows=1 id="mousePos" cols=16 readonly="true" style="position:absolute; visibility: hidden;resize:none;border-style:none;text-align:center;border-color:Transparent;overflow:auto;display:inline-table;vertical-align: middle;">X=0, Y=0</textarea>
+        </td>
+      </tr>
+      <!-- End of the header -->
+
+      <tr>
+        <td id="columnVisual" valign=top style="width:270px; vertical-align: initial;">
+        <!-- style="background: #121314; color: #dfe0e6" -->
+          <div id="divMDeepSea">
+            <iframe id="iframeMDeepSea" src="pages/mds_side_view_50.html" frameBorder="0" style="overflow:hidden; display:block; height:100%; "></iframe>
+          </div>
+
+          <div id="divVisual">
+            <table>
+            <tr><td>
+              <div class="battery">
+                <img id="battery_icon" src="style/widgets/battery/battery_icon.png" />
+                <span id="battery_progress"></span>
+              </div>
+              </td>
+              <td>
+                <div class="compass">
+                    <div class="compass_arc"></div>
+                    <div class="compass_arc"></div>
+                    <div class="compass_arc"></div>
+                    <div class="compass_arc"></div>
+                    <bar id="compass_pointer_ref" class="compass_pointer_ref" > </bar>
+                    <bar id="compass_pointer" class="compass_pointer" > </bar>
+                    <span id="compass_value">yaw 270&deg;</span>
+                    <span id="compass_value_ref">ref 45&deg;</span>
+                </div>
+              </td>
+              <td>
+                <div class="speedmeter_container">
+                  <span id="speedmeter_value">speed 0m/s</span>
+                  <br>
+                  <span id="speedmeter_value_ref">ref 0.1m/s</span>
+                  <div class="speedmeter">
+                      <bar id="speedmeter_pointer_ref" class="speedmeter_pointer_ref"> </bar>
+                      <bar id="speedmeter_pointer" class="speedmeter_pointer"> </bar>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            </table>
+            <textarea id="txt_vars" cols="30" readonly="true">Not connected</textarea>
+            X D<input id="txtXD" type="tel" style="width:40%;" value="-1"; onchange="inputChange(this)"><input type='button' style="width:20%;" onclick="holdPos();" value='HoldPos'> <input type='button' style="width:15%;" onclick="copy_wp();" value='Copy'><br>
+            Y D<input id="txtYD" type="tel" style="width:40%;" value="-1" onchange="inputChange(this)"><input type='button' style="width:30%;" onclick="stopPos();" value='Stop'>&nbsp;<br>
+            <p>Mode: <span id="divVisual_mode">UND</span> </p>
+            <table style="width:100%">
+              <tr>
+                <td title="GPS" id="divVisual_GPS"><a class="btn-floating btn waves-effect waves-light red" style="width: 10px; height: 10px; line-height: 10px;"></a> GPS</span></td>
+                <td title="IMU" id="divVisual_IMU"><a class="btn-floating btn waves-effect waves-light green" style="width: 10px; height: 10px; line-height: 10px;"></a> IMU</td>
+                <td title="Battery" id="divVisual_bat"><a class="btn-floating btn waves-effect waves-light green" style="width: 10px; height: 10px; line-height: 10px;"></a> BAT</td>
+                <td title="Thrusters" id="divVisual_thr"><a class="btn-floating btn waves-effect waves-light amber" style="width: 10px; height: 10px; line-height: 10px;"></a> THR</td>
+              </tr>
+              <tr>
+                <td title="DVL" id="divVisual_dvl"><a class="btn-floating btn waves-effect waves-light amber" style="width: 10px; height: 10px; line-height: 10px;"></a> DVL</td>
+                <td title="Acoustics" id="divVisual_aco"><a class="btn-floating btn waves-effect waves-light amber" style="width: 10px; height: 10px; line-height: 10px;"></a> ACO</td>
+                <td title="Altimeter" id="divVisual_alt"><a class="btn-floating btn waves-effect waves-light amber" style="width: 10px; height: 10px; line-height: 10px;"></a> ALT</td>
+                <td title="Leaks" id="divVisual_lea"><a class="btn-floating btn waves-effect waves-light amber" style="width: 10px; height: 10px; line-height: 10px;"></a> LEA</td>
+              </tr>
+            </table>
+            <center><p id="ULe" class="Block">Upper<br>Leak</p>&nbsp;<p id="LLe" class="Block" >Lower<br>Leak</p>&nbsp;<p id="RTK" class="Block" >GPS&nbsp;<br>Auto</p></center>
+            <button id="btmorphstp" onclick='btSTOPProject();' type="button" style="padding:0px; width:98%;height:30px; color:red;text-align:center;font:20px Helvetica">PROJECT STOP!</button>
+          </div>
+          <div class="buttons_hidden" id="div_zoom_buttons">
+            <div class="buttons_console buttons_header" id="zoom_1_1" onclick="scaleZoom=1; draw(0,0,1,1);" title="Zoom 1:1"></div>
+            <div class="buttons_console buttons_header" id="follow_vehicle" onclick="nav_button_follow_vehicle_click(this);" title="Follow Selected Vehicle"></div>
+          </div>
+          <div class="buttons_hidden" id="div_mission_program_buttons">
+            <div class="buttons_console buttons_header" id="nav_mission_program_edit" onclick="nav_mission_program_edit_click(this);" title="Edit existing missions"></div>
+            <div class="buttons_console buttons_header" id="nav_mission_program_new" onclick="nav_mission_program_new_click(this);" title="Design new mission"></div>
+            <div class="buttons_console buttons_header" id="nav_mission_program_line_by_line" onclick="nav_mission_program_line_by_line_click(this);" title="Design section by section"></div>
+          </div>
+        </td>
+        <td align="center" style="width:14px; vertical-align: middle; display: none" class="no_padding">
+          <span id="hideBar" class="hideBarStyle" style="visibility: hidden;vertical-align: middle;" onmouseover="if(VisualHide) this.style.cursor='url(style/images/openBar.png)'; else this.style.cursor='url(style/images/closeBar.png)'; " onclick="hideVisualBar();"><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><<br><</span>
+        </td>
+
+        <!-- Altimeter plot - removed by malaclemys-->
+        
+        <td id="ll">
+          <div id="placeholder" style="position:relative; border:0; width:125px; height:96vh; margin: 0px 0px 0px 0px;"></div>
+        </td>
+       
+        <td id="tt" align="center" > <!--style="width:100%; height:100%;">-->
+          <div id="divMaps" class="wrapper no_padding">
+            <div id="logoDiv">
+              <table id="table_header" border="0" cellspacing="0" cellpadding="0" style="width: 100%">
+                  <td class="dsor_logo"><div class="logos buttons_header" id="dsor_logo" title="DSOR Logo" ></div></td>
+                  <td class="isr_logo"><div class="logos buttons_header" id="isr_logo" title="ISR Logo" > </div></td>
+                  <td class="ist_logo"><div class="logos buttons_header" id="ist_logo" title="IST Logo" ></div></td>
+              </table>
+            </div>
+
+            <canvas id="canvas_back" style="z-index: 1;"></canvas>
+            <canvas id="ctrMap"  style="z-index: 5;" ondrop="dropVehicle(this, event)" ondragenter="return false" ondragover="return false" onmousemove="this.style.cursor='crosshair';  MouseMoveCanvas(event, this);" onclick="canvasClick(this,event)" onmousedown="MouseDown( event, this); return false;" onmouseup="MouseUpCanvas(event, this);"> <!-- on mouse move  ChangePosLabel(this, event); -->
+              <!-- <img onclick=";" onmouseover="this.style.cursor='crosshair'; " onmousemove="this.style.cursor='crosshair'; ChangePosLabel(this);" id="map_img" height=100% src="./Mission_scenarios/my_map_oeiras_final.jpg"> -->
+            </canvas>
+
+            <div id="ButtonsBar">
+              <table id="table_header" border="0" cellspacing="0" cellpadding="0" style="padding: 0px;">
+                <tr>
+                  <td class="button_td" id="open_mission_td">
+                    <div class="buttons_console buttons_header" id="open_mission" title="Open mission">
+                      <input type="file" id="Mission_File_UP"/>
+                    </div>
+                  </td>
+                  <td class="button_td" id="open_bathyfile_td">
+                    <div class="buttons_console buttons_header" id="open_bathyfile" title="Open Bathymetry File">
+                      <input type="file" id="bathyfile_UP"/>
+                    </div>
+                  </td>
+                  <td class="button_td">
+                    <!-- Modal Trigger -->
+                    <a class="modal-trigger" href="#modal_scenario" >
+                      <div class="buttons_console buttons_header" id="maps" style="border-color: black" title="Select another scenario"></div>
+                    </a>
+                  </td>
+                  <td class="button_td"><div class="buttons_console buttons_header" id="zoom_tools" onclick="nav_button_click(this);" onmousedown="nav_button_down(this);" onmouseup="nav_button_up(this);" title="Zoom tools"></div></td>
+                  <td class="button_td"><div class="buttons_console buttons_header" id="error_list" onclick="openErrorListWindow();" title="Shows the list of errors"></div></td>
+                  <td class="button_td"><div class="buttons_console buttons_header" id="vehicle_list" onclick="disp_overlay('vehicle_actions');" title="Vehicle Actions: Reporting, Missions, etc"></div></td>
+                  <td class="button_td"><div class="buttons_console buttons_header" id="vehicle_conf" onclick="disp_overlay('vehicle_configs');" title="Vehicle Configurations"></div></td>
+                  <td class="button_td"><div class="buttons_console buttons_header" id="measure" title="Measure Distances in the map" onclick='RULER=!RULER; nav_button_click(this);'></div></td>
+                  <td class="button_td"><div class="buttons_console buttons_header" id="mission" title="Draw Mission" onclick="nav_button_click(this);" onmousedown="nav_button_down(this);" onmouseup="nav_button_up(this);" ></div></td>
+                  <!-- <td class="button_td"><div class="buttons_console buttons_header" id="waypoint" onclick="Point=true; WayPoint=true; activate_BT('waypoint',WayPoint);" title="Enable Waypoint for the selected vehicle"></div></td> -->
+                  <td class="button_td"><div class="buttons_console buttons_header" id="clear" onclick="btClear();" title="Clear the vehicle Paths"></div></td>
+                  <td class="button_td"><div class="buttons_console buttons_header" id="waypoint_clear" onclick="DPoints.length=0; DPoints_green.length=0;btClear();" title="Clear the vehicle Paths and Waypoints"></div></td>
+                  <!-- <td width="58px"> &nbsp;<p id="barBAT" class="barbatterie">0%</p></td> -->
+                </td>
+              </table>
+            </div>
+
+
+    <!-- Help Menu-->
+    <div id="div_help_menu" class="help_menu help_hidden">
+      <table style="height: 100%; width: 100%;">
+        <tr><td><p class="help_shortcut">shortcut</p></td><td><p class="help_description">description</p></td></tr>
+        <tr><td><p><br></p></td></tr>
+        <tr><td><p class="help_shortcut">alt+h</p></td><td><p class="help_description">shows this help menu</p></td></tr>
+        <tr><td><p class="help_shortcut">ctrl+shift+l</p></td><td><p class="help_description">show the logbook entry menu</p></td></tr>
+        <tr><td><p class="help_shortcut">ctrl+alt+h</p></td><td><p class="help_description">sends the selected vehicle to the vehicle tab waypoint</p></td></tr>
+        <tr><td><p class="help_shortcut">ctrl+alt+j</p></td><td><p class="help_description">sends the selected vehicle to the vehicle settings waypoint</p></td></tr>
+        <tr><td><p class="help_shortcut">ctrl+alt+k</p></td><td><p class="help_description">sends the selected vehicle to the vehicle settings waypoint</p></td></tr>
+        <tr><td><p class="help_shortcut">space</p></td><td><p class="help_description">stops selected vehicle's thrusters </p></td></tr>
+        <tr><td><p class="help_shortcut">shift while measuring</p></td><td><p class="help_description">snaps to 45 degrees</p></td></tr>
+        <tr><td><p class="help_shortcut">mousewheel down</p></td><td><p class="help_description">moves maps around</p></td></tr>
+        <tr><td><p class="help_shortcut">alt+mousewheel</p></td><td><p class="help_description">show the logbook entry menu</p></td></tr>
+        <tr><td><p class="help_shortcut">mouse 2nd button</p></td><td><p class="help_description">opens quick tools menu</p></td></tr>
+      </table>
+    </div>
+          </div>
+          
+          <audio id="error_notification_beep" src="style/sounds/beep_01_edited.wav" preload="auto" autobuffer loop> </audio>
+          <div id="duplicater0" class="tn-box">
+            <p>Process!</p>
+            <p>Your settings have been saved successfully!</p>
+            <div class="tn-progress"></div>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <!-- select vehicle buttons -->
+    <div id="div_vehicle_icons">
+    </div>
+
+  <!-- Modal Structure -->
+  <div id="modal_scenario" class="modal">
+    <div class="modal-content photos" id="scenarios_list">
+      <h4>Scenario Selection</h4>
+    </div>
+  </div>
+    <script>
+      document.getElementById('Mission_File_UP').addEventListener('change', readBlob, false);
+      window.onmessage = function(e){
+        //console.log('index.html Message ' + e.data);
+        // mds panel asked for waypoint
+        if(e.data.indexOf('mds_waypoint') !=-1 ){ 
+          Point = true;
+          WayPoint = true;
+        }
+        if(e.data.indexOf('CHSCEN=')!=-1){ // change scenario
+          scen = e.data.replace('CHSCEN=','');
+          chScen(scen, 1);
+          restore_select(); // Close window after select
+        }else if(e.data.indexOf('CHVCONF=')!=-1){
+          if(e.data.replace('CHVCONF=','')=="true"){ // change vehicle conf
+            console.log('index.html Values Changed ' + e.data.replace('CHVCONF=',''));      
+            VehiclesData_aux = VehiclesData;
+
+            VehiclesData = JSON.parse(localStorage.VehiclesData);
+            // Restore values that were updated in between
+              /*if(i>=VehiclesData_aux.length){
+                VehiclesData[i].GPS_X=0;
+                VehiclesData[i].GPS_Y=0;
+                VehiclesData[i].Depth=0;    
+                VehiclesData[i].Altitude=0;
+                VehiclesData[i].YAW=90;
+                VehiclesData[i].VehiclePath={'x':[],'y':[], 'z':[], 'alt':[]};
+                VehiclesData[i].SystemState=true;
+                continue;
+              }*/
+            for(var i=0;i<Math.min(VehiclesData_aux.length,VehiclesData.length);i++){
+              VehiclesData[i].VehiclePos=VehiclesData_aux[i].VehiclePos;
+              VehiclesData[i].GPS_X=VehiclesData_aux[i].GPS_X;
+              VehiclesData[i].GPS_Y=VehiclesData_aux[i].GPS_Y;
+              VehiclesData[i].Depth=VehiclesData_aux[i].Depth;    
+              VehiclesData[i].Altitude=VehiclesData_aux[i].Altitude;
+              VehiclesData[i].YAW=VehiclesData_aux[i].YAW;
+              VehiclesData[i].VehiclePath=VehiclesData_aux[i].VehiclePath;
+            }
+            
+            update_spans();
+            ROS_VARS = JSON.parse(localStorage.ROS_VARS);
+            ROS_SPARE_VARS = JSON.parse(localStorage.ROS_SPARE_VARS);
+            update_display_flags();
+          }
+          restore_select(); // Close window after select
+          draw(-1,-1,-1,-1);
+        }else if(e.data.indexOf('CMDCONF=')!=-1){
+          if(e.data.replace('CMDCONF=','')=="true"){ //CHANGES 
+            mdconf_formation = JSON.parse(window.localStorage.mdconf_formation);
+            mdconf_mission = JSON.parse(window.localStorage.mdconf_mission);
+            mdconf_mission_id = JSON.parse(window.localStorage.mdconf_mission_id);
+            mdconf_standard_mission_flag = JSON.parse(window.localStorage.mdconf_standard_mission_flag);
+            mdconf_mission_speed = JSON.parse(window.localStorage.mdconf_mission_speed);
+            
+            for (var mn=0; mn < missions_to_be_displayed.length; mn++)
+            {
+              if(missions_to_be_displayed[mn].mission_id == mdconf_mission_id)
+              {
+                if(!mdconf_standard_mission_flag)
+                  for(var i=0;i<mdconf_mission.length;i++){
+                    missions_to_be_displayed[mn].mission[i].value[missions_to_be_displayed[mn].mission[i].dictionary.veloc] = mdconf_mission[i].value[missions_to_be_displayed[mn].mission[i].dictionary.veloc];
+                    console.log(" updating mission"  + missions_to_be_displayed[mn].mission[i].value[missions_to_be_displayed[mn].mission[i].dictionary.veloc]);
+                  }
+                  
+                missions_to_be_displayed[mn].mission_speed = mdconf_mission_speed;
+                missions_to_be_displayed[mn].formation = full_clone(mdconf_formation);
+                missions_to_be_displayed[mn].standard_mission_flag = mdconf_standard_mission_flag;
+                //update_mission_done(missions_to_be_displayed[mn]);
+                mission_update_edited(missions_to_be_displayed[mn]);
+                break;
+              }
+            }
+            // Change mission with formation
+            //if(mdconf_formation.length!=0){
+            //  FORMATION(mdconf_formation,mission.mission);
+            //}
+          }
+          restore_select(); // Update mission
+        }else if(e.data.indexOf('MISSIONUP=')!=-1){
+          if(MISSION_DESIGN){
+            destroy_mission_planning();
+          }
+          var str = String(e.data).replace('MISSIONUP=','');
+          mission.parseTxt(str);
+          console.log('index.html Message ' + str);
+          if(MISSION_DESIGN){
+              init_mission_planning();
+          }
+        }
+      };
+    </script>
+    
+    <script type="text/javascript">
+$(function () {
+    // setup control widget
+    var updateInterval = 1000;
+    
+    // setup plot
+    var options = {
+      lines: { show: true  },
+      points: { show: false },
+      legend: { show: false },
+      series: { shadowSize: 0 }, // drawing is faster without shadows
+      //yaxis: { max: 0.1 , min:-15 },
+      //yaxis: { max: 0.1 , min: auto },
+      yaxis: { max: 0.1 },
+      xaxis: { min: -100, max: 0.1 },
+      grid: { clickable: false,   hoverable: false},
+      margin: {right: 0},      
+      colors: ["#ff0000", "#ff0000", "#919733"]
+    };
+    var plot = $.plot($("#placeholder"), [ ], options);
+    
+    var data = [];
+    // Obtain Data from vehicles
+    function getData() {
+      var res=[];
+      options.colors=[];
+      var tnow = Date.now();
+      for(var vh=0; vh<VehiclesData.length; vh++)
+      {
+        if (!VehiclesData[vh].active || VehiclesData[vh].VehiclePath.z.length==0)
+          continue;
+        
+        var zdata = [], wcdata = [], median_alt=0;
+        for(var i=0; i<VehiclesData[vh].VehiclePath.z.length; i++){
+          if(VehiclesData[vh].VehiclePath.alt[i]<0 || (VehiclesData[vh].VehiclePath.z_time[i]-tnow)/1000<-100){//} || VehiclesData[vh].VehiclePath.alt[i]>130 ){
+            // Only add null in the middle (don't connect 2 depths or altitude)
+            if(zdata.length!=0){
+              zdata.push(null);
+              wcdata.push(null);
+            }
+            continue;
+          }
+          //zdata.push([i-VehiclesData[vh].VehiclePath.z.length, -VehiclesData[vh].VehiclePath.z[i]]);
+          //wcdata.push([i-VehiclesData[vh].VehiclePath.z.length, -(VehiclesData[vh].VehiclePath.z[i]+VehiclesData[vh].VehiclePath.alt[i])]);
+          zdata.push([(VehiclesData[vh].VehiclePath.z_time[i]-tnow)/1000, -VehiclesData[vh].VehiclePath.z[i]]);
+          wcdata.push([(VehiclesData[vh].VehiclePath.z_time[i]-tnow)/1000, -(VehiclesData[vh].VehiclePath.z[i]+VehiclesData[vh].VehiclePath.alt[i])]);
+        }
+        // Avoid strange displays
+        if(zdata.length!=0){
+          // add color only if there's data
+          if(  VehiclesData[vh].color.toLowerCase()=="#ffffff"){
+            options.colors.push("#000000"); // z
+            options.colors.push("#000000"); // alt
+          }else{  
+            options.colors.push(VehiclesData[vh].color); // z
+            options.colors.push(VehiclesData[vh].color); // alt
+          }
+          res.push({data: zdata, label: VehiclesData[vh].name+'_z'});
+          res.push({data: wcdata, label: VehiclesData[vh].name+'_wc'});
+        }
+      }
+
+      if(res.length==0)
+      {
+        options.colors.push("#000000"); // z
+        options.colors.push("#000000"); // alt
+        res.push({data: [0], label: '_z'});
+        res.push({data: [0], label: '_wc'});
+      }
+      return res;
+    }
+
+    function update() {
+      //plot.draw();
+      $.plot($("#placeholder"), getData(), options);
+      //setTimeout(update, updateInterval);
+    }
+  
+  setInterval(update, updateInterval);
+  update();
+});
+$(document).ready(function(){
+  animate($('.compass'), 1);
+})
+/*setInterval(compass_update, 100);
+setInterval(speedmeter_update, 100);*/
+</script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+HTTP 200 ok
+Access-Control-Allow-Origin: *
+Content-Type: application/xml
+
+LLon=-9.095577;
+RLon=-9.091592;
+TLat=38.767366;
+BLat=38.762317;

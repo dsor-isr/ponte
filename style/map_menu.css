@@ -1,0 +1,181 @@
+.map_menu  {
+	position: absolute; 
+	visibility:visible;
+	z-index:20;
+  background-color: transparent;
+}
+
+.map_menu_hidden  {
+	position: absolute; 
+	background-color:#FFFFFF;
+	visibility:hidden;
+	z-index:20;
+}
+
+.map_menu > a:first-child {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 10px;
+    border-top: 0;
+}
+
+.map_menu > a:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom: 0;
+}
+
+.map_menu a {
+  display:block; 
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px dotted #1b1b1b;
+  padding: 7px 15px;
+  font-family: Helvetica, Arial, sans-serif;
+  color: #D8D8D8;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-shadow: 0 1px 1px #000;
+  font-size: 13px;
+  font-weight: 300;
+  background: #282828;
+}
+
+.map_menu a:hover {
+  color: #262626;
+  background: linear-gradient(#a5cc94, #93c47d);
+  border-color: transparent;
+  text-decoration: none;
+}
+
+a.fast_menu_disable, a.fast_menu_disable:hover {
+  background: linear-gradient(#a6a6a6,#d9d9d9);
+  border-color: transparent;
+  color:#a6a6a6;
+  text-shadow: none;
+  text-decoration: none;
+}
+
+.vehicle_info_menu {
+	position: absolute; 
+	background-color:#FFFFFF;
+	visibility:visible;
+	z-index:20;
+	top: 300;
+	left: 500;
+	border: 2px solid black;
+	opacity: 0.6;
+    filter: alpha(opacity=60);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.vehicle_info_menu .title {
+	font-weight:bold;
+	text-align: center;
+	font-size: 90%;
+}
+
+
+.vehicle_info_menu .text_list {
+	font-size: 80%;
+}
+
+.vehicle_info_menu_hidden {
+	position: absolute; 
+	visibility:hidden;
+	top: 0%;
+	left: 0%;
+}
+
+.mission_programming_menu {
+	position: absolute; 
+	background-color:#FFFFFF;
+	visibility:visible;
+	z-index:20;
+	top: 60;
+	left: 500;
+	border: 2px solid black;
+	opacity: 1.0;
+    filter: alpha(opacity=100);
+    font-family: Arial, Helvetica, sans-serif;
+  	cursor: hand;
+  	border-radius: 5px;
+}
+
+.mission_programming_menu .title {
+	font-weight:bold;
+	text-align: center;
+	font-size: 90%;
+}
+
+
+.mission_programming_menu .text_list {
+	font-size: 80%;
+}
+
+.mission_programming_menu_hidden {
+	position: absolute; 
+	visibility:hidden;
+}
+
+#div_stop_button_out {
+	position: absolute; 
+	visibility:visible;
+	z-index:20;
+	top: 0%;
+	right: 0%;
+    font-family: Arial, Helvetica, sans-serif;
+  	cursor: hand;
+  	border-radius: 5px;
+}
+
+
+#logoDiv {
+	position: absolute; 
+	visibility:visible;
+	z-index:5;
+  margin: 0px 0px 0px 0px;
+	top: 0;
+	left: 0;
+  font-family: Arial, Helvetica, sans-serif;
+	cursor: hand;
+	border-radius: 5px;
+	background-color: #FFFFFF;
+	border: 1px solid black;
+}
+
+.help_shortcut
+{
+  color: white;
+}
+.help_description
+{
+  color: white;
+}
+
+.help_menu
+{
+  visibility: visible;
+  position: absolute; 
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: auto;
+  margin-top: auto; 
+  left:0; 
+  top:0;
+  right:0;
+  bottom:0;
+  width: 600px;
+  height: 250px;
+  z-index:10; 
+  background-color:#000000; 
+  border: 2px solid white; 
+  opacity: 0.7;
+  border-radius: 5px; 
+  color:#ffffff;
+  padding: 10px;
+}
+
+.help_hidden
+{
+  visibility: hidden;
+}

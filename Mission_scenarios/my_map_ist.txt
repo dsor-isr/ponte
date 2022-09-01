@@ -1,0 +1,91 @@
+Project: C:\Documents and Settings\Joana\Ambiente de trabalho\place_tecnico\my_new_task.umd
+Log begin......v=5.8
+Now time is:11-05-2011 16:02:45
+
+[MapsType]
+MapsType=1
+
+Left Longitude  input= -9,139209
+Right Longitude input= -9,137515
+Top Latitude    input= 38,737768
+Bottom Latitude input= 38,736382
+
+MinX = 497668
+MinY = 401724
+MaxX = 497673
+MaxY = 401730
+
+Left Longitude  download=-9,13925170898438
+Right Longitude download=-9,13719177246094
+Top Latitude    download=38,7380172584742
+Bottom Latitude download=38,7361426546972
+
+All images' scope information are saved to C:\Documents and Settings\Joana\Ambiente de trabalho\place_tecnico\my_new_task_list.txt
+
+Total count of images would be downloaded: 42
+
+Download threads count: 8
+
+Zoom level: 20
+
+path: C:\Documents and Settings\Joana\Ambiente de trabalho\place_tecnico\
+
+Start downloading...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T3:seq=2,gs_497668_401725_20.jpg OK
+T7:seq=6,gs_497668_401729_20.jpg OK
+T4:seq=3,gs_497668_401726_20.jpg OK
+T6:seq=5,gs_497668_401728_20.jpg OK
+T8:seq=7,gs_497668_401730_20.jpg OK
+T5:seq=4,gs_497668_401727_20.jpg OK
+T2:seq=1,gs_497668_401724_20.jpg OK
+T1:seq=8,gs_497669_401724_20.jpg OK
+T3:seq=10,gs_497669_401726_20.jpg OK
+T7:seq=14,gs_497669_401730_20.jpg OK
+T4:seq=11,gs_497669_401727_20.jpg OK
+T5:seq=12,gs_497669_401728_20.jpg OK
+T2:seq=9,gs_497669_401725_20.jpg OK
+T8:seq=15,gs_497670_401724_20.jpg OK
+T1:seq=16,gs_497670_401725_20.jpg OK
+T6:seq=13,gs_497669_401729_20.jpg OK
+T3:seq=18,gs_497670_401727_20.jpg OK
+T4:seq=19,gs_497670_401728_20.jpg OK
+T7:seq=22,gs_497671_401724_20.jpg OK
+T5:seq=20,gs_497670_401729_20.jpg OK
+T2:seq=17,gs_497670_401726_20.jpg OK
+T8:seq=23,gs_497671_401725_20.jpg OK
+T1:seq=24,gs_497671_401726_20.jpg OK
+T6:seq=21,gs_497670_401730_20.jpg OK
+T3:seq=26,gs_497671_401728_20.jpg OK
+T4:seq=27,gs_497671_401729_20.jpg OK
+T7:seq=30,gs_497672_401725_20.jpg OK
+T5:seq=28,gs_497671_401730_20.jpg OK
+T2:seq=25,gs_497671_401727_20.jpg OK
+T8:seq=31,gs_497672_401726_20.jpg OK
+T1:seq=32,gs_497672_401727_20.jpg OK
+T3:seq=34,gs_497672_401729_20.jpg OK
+T6:seq=29,gs_497672_401724_20.jpg OK
+T2:seq=33,gs_497672_401728_20.jpg OK
+T4:seq=35,gs_497672_401730_20.jpg OK
+T7:seq=38,gs_497673_401726_20.jpg OK
+T8:seq=39,gs_497673_401727_20.jpg OK
+T7 Finished.
+T4 Finished.
+T8 Finished.
+T5:seq=36,gs_497673_401724_20.jpg OK
+T5 Finished.
+T1:seq=40,gs_497673_401728_20.jpg OK
+T1 Finished.
+T3:seq=42,gs_497673_401730_20.jpg OK
+T3 Finished.
+T6:seq=37,gs_497673_401725_20.jpg OK
+T6 Finished.
+T2:seq=41,gs_497673_401729_20.jpg OK
+T2 Finished.
+
+--------------------------------
+Task Stoped!
+
+Now time:11-05-2011 16:02:47
+
+Log file has been saved as C:\Documents and Settings\Joana\Ambiente de trabalho\place_tecnico\my_new_task_log.txt

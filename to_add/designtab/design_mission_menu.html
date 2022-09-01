@@ -1,0 +1,310 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+<!--  <script src="../../js/jquery.sortable.js"></script> -->
+  <script src="../../js/jquery/jquery-ui.min.js"></script>
+  <script src="js/jquery.tmpl.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <link type="text/css" rel="stylesheet" href="../../css/materialize.min.css"  media="screen,projection">
+  <script type="text/javascript" src="../../js/materialize.min.js"></script>
+  <style>
+
+    [draggable] {
+      -moz-user-select: none;
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      user-select: none;
+      /* Required to make elements draggable in old WebKit */
+      -khtml-user-drag: element;
+      -webkit-user-drag: element;
+    }
+    body {
+      font-family: 'Droid Serif';
+    }
+
+    section {      
+      border: 1px solid #F00;
+      margin: 0px;
+      padding: 0px;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    ul + ul {
+      margin-top: -21px;
+    }
+/*    p, ul{
+      display: block;
+      margin-top: 0px;
+      margin: 0px;
+      padding: 0px;
+     border: 1px dashed #000;
+    }*/
+    .sortable li {
+      overflow:hidden;  
+      position: relative;
+      display: block;
+      padding: 10px 15px;
+      margin-bottom: -1px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+
+      /*margin: 0px;
+      padding: 0px;*/
+    }
+
+    li.disabled {
+      opacity: 0.5;
+    }
+
+/*    li.sortable-placeholder {
+      border: 1px dashed #CCC;
+      padding: 10px 15px;
+      background: none;
+    }*/
+    a.list-ahref {
+     display: block;
+     cursor: hand;
+     color: #000;
+     text-decoration: none;
+    }
+/*    .list-group-item
+    {
+      overflow:hidden;  
+      position: relative;
+      display: block;
+      padding: 10px 15px;
+      margin-bottom: -1px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+    }*/
+    .collapse{
+      margin: 0;
+      height: auto !important;
+    }
+    .waypoint input[type="text"], .depth input[type="text"], .lawnmower input[type="text"]{
+      border: solid 1px #dcdcdc;
+      width: 150px;
+      float: left;
+      margin: 0px;
+      margin-left: 10px; 
+      text-align: left;
+
+    }
+    .waypoint input[type="button"] {
+      background: url(style/icon-pick-on-map.png) no-repeat;
+      background-size: contain;
+      background-position: center;
+      width:45px;
+      height:45px;
+      margin-left: 10px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      outline: none;
+      overflow: visible;
+      cursor: pointer;
+      border-radius: 4px;
+      -moz-border-radius: 4px; 
+      -webkit-border-radius:4px; 
+      box-shadow:1px 1px 2px 0 #CCCCCC;
+      -moz-box-shadow: 1px 1px 2px 0 #CCCCCC;
+      -webkit-box-shadow: 1px 1px 2px 0 #CCCCCC;
+    }
+    .deleteSecBt{
+      display: absolute;
+      background: url(style/icon-delete.png) no-repeat;
+      background-size: contain;
+      background-position: center;
+      float: right;
+      cursor: pointer;
+      width:20px;
+      height:20px;
+    }
+  </style>
+</head>
+<script type="text/javascript">
+  //var waypoint_list=[];
+  var section_list=[];
+  function objwaypoint(x, y){
+    this.x = x;
+    this.y = y;
+  }
+  
+  function objDepth(depth){
+    this.depth = depth;
+  }
+
+  function objAltitude(altitude){
+    this.altitude = altitude;
+  }
+
+  function objLawnMower(leg_num, leg_dist, width, height){
+    this.leg_num = leg_num;
+    this.leg_dist = leg_dist;
+    this.width = width;
+    this.height = height;
+  }
+
+  function objSection( type, id, objptr){
+    this.type = type;
+    this.id = id;
+    this.objptr = objptr;
+  }
+
+  function updateSectionFloat(elem, id, prop){
+    for (var sec in section_list){
+      if(section_list[sec].id == id){
+        section_list[sec].objptr[prop] = parseFloat(elem.value);
+        break;
+      }
+    }
+  }
+
+  function removeSection(id){
+    for (var sec in section_list){
+      if(section_list[sec].id == id){
+        section_list.splice(sec, 1);
+        break;
+      }
+    }
+  }
+
+  $(function() {
+    $('.sortable').sortable({
+      axis: "y",
+      forcePlaceholderSize: true,
+      start: function(e,ui){
+        ui.placeholder.height(ui.item.height());
+      }
+    });
+  });
+
+  $(document).ready(function() {
+    var sec_num=0; // TODO: DO THIS IN ANOTHER WAY
+    $('#dpd_waypoint').click( function() {
+     sec_num++;
+      //waypoint_list.push(new objwaypoint("wp"+sec_num,0,0));
+      section_list.push(new objSection("wp", "wp"+sec_num, new objwaypoint(0,0)));
+      $('#hidden-waypoint').tmpl({ wpid: "wp"+sec_num}).appendTo($('#DesignMenu'));
+      $('#DesignMenu').sortable('option', 'update');
+      return true; 
+    });
+    $('#dpd_depth').click( function() {
+      sec_num++;
+      section_list.push(new objSection("dph", "dph"+sec_num, new objDepth(0)));
+      $('#hidden-depth').tmpl({ dphid: "dph"+sec_num}).appendTo($('#DesignMenu'));
+      $('#DesignMenu').sortable('option', 'update');
+      return true; 
+    });
+    $('#dpd_altitude').click( function() {
+      sec_num++;
+      section_list.push(new objSection("altid", "altid"+sec_num, new objAltitude(0)));
+      $('#hidden-altitude').tmpl({ altid: "altid"+sec_num}).appendTo($('#DesignMenu'));
+      $('#DesignMenu').sortable('option', 'update');
+      return true; 
+    });
+    $('#dpd_lawnmower').click( function() {
+      sec_num++;
+      section_list.push(new objSection("lmpfid", "lmpf"+sec_num, new objLawnMower()));
+      $('#hidden-lawnmower').tmpl({ lmpf: "lmpf"+sec_num}).appendTo($('#DesignMenu'));
+      $('#DesignMenu').sortable('option', 'update');
+      return true; 
+    });
+
+    $('#DesignMenu').on('click', '.deleteSecBt', function() {
+      // TODO: Do something to the section
+      console.log('removing '+$(this).parent().attr('id').replace('li',''));
+      removeSection($(this).parent().attr('id').replace('li',''));
+      $(this).parent().remove();
+    });
+
+    $('#btcollapse').click( function() {
+      $('.collapse').collapse('hide');
+    });
+    // Only leaves on item opened
+    $('#DesignMenu').on('click', 'a.list-ahref', function() {
+      $('.collapse').not(this).collapse('hide');
+    });
+
+  });
+</script>
+
+<body>  
+<ul id="DesignMenu" class="sortable list-group">
+    <script id="hidden-waypoint" type="text/x-custom-template">  
+      <li class="list-group-item waypoint" id="li${wpid}">
+          <span class="deleteSecBt" onclick=""></span>
+          <a class="list-ahref"  data-toggle="collapse"  data-target="#div${wpid}"  data-parent="#DesignMenu">WayPoint [${wpid}]</a>
+          <div id="div${wpid}" class="collapse">
+              <input type="text" id="x${wpid}" oninput="updateSectionFloat(this, '${wpid}', 'x');" placeholder=":x in utm" title="x coordinate in utm [m]" class="waypoint"/>
+              <input type="text" id="y${wpid}" oninput="updateSectionFloat(this, '${wpid}', 'y');" placeholder=":y in utm" title="y coordinate in utm [m]" class="waypoint" />
+              <input type="button" class="waypoint" id="btnwpPick${wpid}" onclick="GetValue();" />
+          </div>
+      </li>
+    </script>
+
+    <script id="hidden-depth" type="text/x-custom-template">
+      <li class="list-group-item depth" id="li${dphid}">
+          <span class="deleteSecBt" onclick=""></span>    
+          <a class="list-ahref"  data-toggle="collapse"  data-target="#div${dphid}"  data-parent="#DesignMenu">Depth [${dphid}]</a>
+          <div id="div${dphid}" class="collapse">
+              <input type="text" id="x${dphid}" oninput="updateSectionFloat(this, '${dphid}', 'depth');" placeholder=":reference" title="Depth reference [m]" class="depth"/>
+              <input type="text" id="t${dphid}" oninput="updateSectionFloat(this, '${dphid}', 'time');" placeholder=":time" title="Reference duration: -1 means until the end of the mission or another reference " class="depth"/>
+          </div>
+      </li>
+    </script>
+
+    <script id="hidden-altitude" type="text/x-custom-template">
+      <li class="list-group-item depth" id="li${altid}">
+          <span class="deleteSecBt" onclick=""></span>    
+          <a class="list-ahref"  data-toggle="collapse"  data-target="#div${altid}"  data-parent="#DesignMenu">Altitude [${altid}]</a>
+          <div id="div${altid}" class="collapse">
+              <input type="text" id="x${altid}" oninput="updateSectionFloat(this, '${altid}', 'altitude');" placeholder=":reference" title="Altitude reference [m]" class="depth"/>
+          <input type="text" id="t${altid}" oninput="updateSectionFloat(this, '${altid}', 'time');" placeholder=":time" title="Reference duration: -1 means until the end of the mission or another reference " class="depth"/>
+          </div>
+      </li>
+    </script>
+
+    <script id="hidden-lawnmower" type="text/x-custom-template">
+      <li class="list-group-item lawnmower" id="li${lmpfid}">
+          <span class="deleteSecBt" onclick=""></span>
+          <a class="list-ahref"  data-toggle="collapse"  data-target="#div${lmpf}"  data-parent="#DesignMenu">LawnMower [${lmpf}]</a>
+          <div id="div${lmpf}" class="collapse">
+            <input type="text" id="nleg${lmpf}" oninput="updateSectionFloat(this, '${lmpf}', 'leg_num');" placeholder=":number of legs" title="number of legs" class="depth"/>
+            <input type="text" id="legdist${lmpf}" oninput="updateSectionFloat(this, '${lmpf}', 'leg_dist');" placeholder=":leg distance [m]" title="leg distance [m]" class="depth"/>
+            <input type="text" id="lmwidth${lmpf}" oninput="updateSectionFloat(this, '${lmpf}', 'width');" placeholder=":width [m]" title="width [m]" class="depth"/>
+            <input type="text" id="lmheight${lmpf}" oninput="updateSectionFloat(this, '${lmpf}', 'height');" placeholder=":height [m]" title="height [m]" class="depth"/>
+          </div>
+      </li>
+    </script>
+    <li class="list-group-item" >
+        <span class="deleteSecBt" onclick=""></span>
+        <a class="list-ahref"  data-toggle="collapse"  data-target="#line3"  data-parent="#DesignMenu">TO BE REMOVED</a>
+        <div id="line3" class="collapse ">
+            <a href="#" class="list-group-item">Subitem 4</a>
+            <a href="#" class="list-group-item">Subitem 5</a>
+            <a href="#" class="list-group-item">Subitem 6</a>
+        </div>
+    </li>
+</ul>
+
+<a id="btcollapse" tabindex="-1" href="javascript:void(0)">Collapse all</a>
+<div class="dropup" style="position:absolute; bottom:0;left:0;">
+  <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">New Section
+  <span class="caret"></span></button>
+  <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+    <li><a id="dpd_depth" tabindex="-1" href="javascript:void(0)">Depth</a></li>
+    <li><a id="dpd_altitude"  tabindex="-1" href="#!">Altitude</a></li>
+    <li class="divider"></li>
+    <li><a id="dpd_waypoint" tabindex="-1" href="#!">Waypoint</a></li>
+    <li class="divider"></li>
+    <li><a id="dpd_lawnmower" tabindex="-1" href="#!">LawnMower</a></li>
+    <li><a id="dpd_zero" tabindex="-1" href="#!">Zero</a></li>
+    <li><a id="dpd_eight" tabindex="-1" href="#!">Eight</a></li>
+    <li><a id="dpd_geophysics" tabindex="-1" href="#!">Geophysics</a></li>
+  </ul>
+</div>
+
+</body>
+</html>

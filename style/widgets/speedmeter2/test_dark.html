@@ -1,0 +1,25 @@
+<html>
+<head>
+<script src="jquery-2.1.1.min.js"></script>
+<script src="heading_widget.js"></script>
+<link rel="stylesheet" href="heading_widget_dark.css" type="text/css" />
+<body style="background-color: #121314">
+<div class="compass">
+    <div class="compass_arc"></div>
+    <div class="compass_arc"></div>
+    <div class="compass_arc"></div>
+    <div class="compass_arc"></div>
+    <bar id="compass_pointer_ref" class="compass_pointer_ref"> </bar>
+    <bar id="compass_pointer" class="compass_pointer"> </bar>
+    <span id="compass_value">yaw 270&deg;</span>
+    <span id="compass_value_ref">ref 45&deg;</span>
+</div>
+</div>
+<script>
+$(document).ready(function(){
+	animate($('.compass'), 1);
+})
+setInterval(compass_update, 100);
+</script>
+</body>
+</html>

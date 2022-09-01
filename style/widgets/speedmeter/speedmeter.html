@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--  <!DOCTYPE html> -->
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <head>
+    <style>
+      div.speedmeter {
+        height: 100px;
+        width: 100px;
+        margin-left: auto;
+        margin-right: auto;
+        //border: 1px solid black;
+        position: relative;
+      }
+      div img {
+        position: absolute;
+        vertical-align: middle;
+        max-width: 100%;
+        max-height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+        top: 0;
+        bottom: 0;
+        left:0;
+        right:0;
+        z-index: 1;
+      }
+
+      img.speedmeter_pointer_ref{
+        max-height: 40%;
+        z-index: 2;
+        /* Due to a bug in the anti-liasing*/
+        -webkit-transform-style: preserve-3d; 
+        -webkit-transform: rotateZ(45deg);
+        
+        -moz-transform:rotate(45deg);
+        -o-transform:rotate(45deg);
+        -ms-transform:rotate(45deg);
+        -webkit-backface-visibility: hidden;
+      }
+
+      img.speedmeter_pointer{
+        max-height: 40%;
+        z-index: 3;
+        /* Due to a bug in the anti-liasing*/
+        -webkit-transform-style: preserve-3d; 
+        -webkit-transform: rotateZ(0deg);
+        
+        -moz-transform:rotate(0deg);
+        -o-transform:rotate(0deg);
+        -ms-transform:rotate(0deg);
+        -webkit-backface-visibility: hidden;
+      }
+
+      div span {
+        position: relative;
+        //border: 1px solid black;
+        display: block;
+        text-align: center; 
+        vertical-align: middle;
+        max-width: 100%;
+        max-height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+        color: blue;
+        top: 71%;
+        bottom: 0;
+        right: 0;
+        left: -9%;
+        z-index: 1;
+        font-size: 7pt;
+      }
+
+      #speedmeter_value_ref {
+        font-size: 6pt;
+        color: green;
+        top: 69%;
+        left:-2%;
+        right:0;
+        z-index: 1;
+      }
+    </style>
+    
+    <script>
+      var speed = 0, speed_ref= 2; //41-342
+      function speedmeter_update(speed_in, speed_ref_in){
+          // Limits 48deg to 342
+          var meter_to_knot = 0.514444;
+          if(speed_in==undefined){
+            speed += 0.1; 
+            speed_ref += 0.1; 
+          }else{
+            speed =speed_in;
+            speed_ref =speed_in_ref;
+          }
+          
+          var knotspeed = speed*meter_to_knot;
+          var knotspeed_ref = speed_ref*meter_to_knot;
+          
+          if(knotspeed>=5) knotspeed =5;
+          if(knotspeed_ref>=5) knotspeed_ref =5;
+          
+          var pointer = document.getElementById("speedmeter_pointer");
+          var angle_pointer =(knotspeed*(342-41)/5+41)*Math.PI/180;
+          //console.log("knot_speed "+knotspeed+" angle_pointer "+angle_pointer*180/Math.PI);
+          var cosd = Math.round(Math.cos(angle_pointer)*100)/100; sind=Math.round(Math.sin(angle_pointer)*100)/100;
+          xval = -17*sind;
+          yval = 17*cosd;
+          //cosd = Math.round(Math.cos(knotspeed+Math.PI)*100)/100; sind=Math.round(Math.sin(knotspeed+Math.PI)*100)/100;
+          pointer.style['-webkit-transform']      ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style.MozTransform               ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style['OTransform']          ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style['msTransform']         ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style['transform']                ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')'; 
+
+
+          var pointer_ref = document.getElementById("speedmeter_pointer_ref");
+          angle_pointer =(knotspeed_ref*(342-41)/5+41)*Math.PI/180;
+          //console.log("angle_pointer "+angle_pointer);
+          var cosd = Math.round(Math.cos(angle_pointer)*100)/100; sind=Math.round(Math.sin(angle_pointer)*100)/100;
+          xval = -17*sind;
+          yval = 17*cosd;
+          //cosd = Math.round(Math.cos(knotspeed_ref+Math.PI)*100)/100; sind=Math.round(Math.sin(knotspeed_ref+Math.PI)*100)/100;
+          pointer_ref.style['-webkit-transform']      ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style.MozTransform               ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style['OTransform']          ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style['msTransform']         ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style['transform']                ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+
+          document.getElementById("speedmeter_value").innerHTML = (knotspeed).toFixed(1);
+          document.getElementById("speedmeter_value_ref").innerHTML = (knotspeed_ref).toFixed(1);
+      }
+      
+    </script>
+
+  </head>
+
+<body  onload="setInterval(speedmeter_update, 100);">
+  <div class="speedmeter">
+    <img class="speedmeter_back" src="speedmeter_back.png" >
+<!--     <img id="speedmeter_pointer_ref" class="speedmeter_pointer_ref" src="pointer_ref.png" >
+    <img id="speedmeter_pointer" class="speedmeter_pointer" src="pointer.png" > -->
+    <img id="speedmeter_pointer_ref" class="speedmeter_pointer_ref" src="speedmeter_ref.png" >
+    <img id="speedmeter_pointer" class="speedmeter_pointer" src="speedmeter_actual.png" >
+    <span id="speedmeter_value">0.5</span>
+    <span id="speedmeter_value_ref">0.2</span>
+  </div>
+</body>
+</html>

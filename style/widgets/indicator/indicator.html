@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--  <!DOCTYPE html> -->
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <head>
+    <style>
+      div.compass {
+        height: 100px;
+        width: 100px;
+        margin-left: auto;
+        margin-right: auto;
+        //border: 1px solid black;
+        position: relative;
+      }
+      div img {
+        position: absolute;
+        vertical-align: middle;
+        max-width: 100%;
+        max-height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+        top: 0;
+        bottom: 0;
+        left:0;
+        right:0;
+        z-index: 1;
+      }
+
+      img.compass_pointer_ref{
+        max-height: 15%;
+        z-index: 2;
+        /* Due to a bug in the anti-liasing*/
+        -webkit-transform-style: preserve-3d; 
+        -webkit-transform: rotateZ(45deg);
+        
+        -moz-transform:rotate(45deg);
+        -o-transform:rotate(45deg);
+        -ms-transform:rotate(45deg);
+        -webkit-backface-visibility: hidden;
+      }
+
+      img.compass_pointer{
+        max-height: 15%;
+        z-index: 3;
+        /* Due to a bug in the anti-liasing*/
+        -webkit-transform-style: preserve-3d; 
+        -webkit-transform: rotateZ(0deg);
+        
+        -moz-transform:rotate(0deg);
+        -o-transform:rotate(0deg);
+        -ms-transform:rotate(0deg);
+        -webkit-backface-visibility: hidden;
+      }
+
+      div span {
+        position: relative;
+        //border: 1px solid black;
+        display: block;
+        text-align: center; 
+        vertical-align: middle;
+        max-width: 100%;
+        max-height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+        color: blue;
+        top: 40%;
+        bottom: 0;
+        left:0;
+        right:0;
+        z-index: 1;
+      }
+
+      #compass_value_ref {
+        //border: 1px solid black;
+        font-size: 10pt;
+        color: green;
+        top: 35%;
+        left:10%;
+        right:0;
+        z-index: 1;
+      }
+    </style>
+    
+    <script>
+      var heading = 0, heading_ref= Math.PI/2;
+      function compass_update(heading, heading_ref){
+          if(heading==undefined){
+            heading += 4*Math.PI/180; 
+            heading_ref += 2*Math.PI/180; 
+          }
+          
+          if(heading>=2*Math.PI) heading =0;
+          if(heading_ref>=2*Math.PI) heading_ref =0;
+          var pointer = document.getElementById("compass_pointer");
+          var cosd = Math.round(Math.cos(heading)*100)/100; sind=Math.round(Math.sin(heading)*100)/100;
+          xval = 50*sind;
+          yval = -50*cosd;
+          cosd = Math.round(Math.cos(heading+Math.PI)*100)/100; sind=Math.round(Math.sin(heading+Math.PI)*100)/100;
+          pointer.style['-webkit-transform']      ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style.MozTransform               ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style['OTransform']          ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style['msTransform']         ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer.style['transform']                ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')'; 
+
+
+          var pointer_ref = document.getElementById("compass_pointer_ref");
+          var cosd = Math.round(Math.cos(heading_ref)*100)/100; sind=Math.round(Math.sin(heading_ref)*100)/100;
+          xval = 50*sind;
+          yval = -50*cosd;
+          cosd = Math.round(Math.cos(heading_ref+Math.PI)*100)/100; sind=Math.round(Math.sin(heading_ref+Math.PI)*100)/100;
+          pointer_ref.style['-webkit-transform']      ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style.MozTransform               ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style['OTransform']          ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style['msTransform']         ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+          pointer_ref.style['transform']                ='matrix('+cosd+','+sind+','+(-sind)+','+cosd+','+xval+','+yval+')';
+
+          document.getElementById("compass_value").innerHTML = (heading*180/Math.PI).toFixed(0)+"&deg;";
+          document.getElementById("compass_value_ref").innerHTML = (heading_ref*180/Math.PI).toFixed(0)+"&deg;";
+      }
+      
+    </script>
+
+  </head>
+
+<body  onload="setInterval(rotate_img, 100);">
+  <div class="compass">
+    <img class="compass_back" src="compass_back.png" >
+<!--     <img id="compass_pointer_ref" class="compass_pointer_ref" src="pointer_ref.png" >
+    <img id="compass_pointer" class="compass_pointer" src="pointer.png" > -->
+    <img id="compass_pointer_ref" class="compass_pointer_ref" src="pointer_reference.png" >
+    <img id="compass_pointer" class="compass_pointer" src="pointer_actual.png" >
+    <span id="compass_value">270&deg;</span>
+    <span id="compass_value_ref">45&deg;</span>
+  </div>
+</body>
+</html>

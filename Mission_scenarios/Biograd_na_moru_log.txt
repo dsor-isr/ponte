@@ -1,0 +1,102 @@
+Project: C:\umdtask\Biograd\Biograd_na_moru.umd
+Log begin......v=6.87
+Now time is:9/28/2015 4:27:23 PM
+
+[MapsType]
+MapsType=6
+
+Left Longitude  input= 15.440635
+Right Longitude input= 15.446182
+Top Latitude    input= 43.934237
+Bottom Latitude input= 43.932328
+
+MinX = 284631
+MinY = 333509
+MaxX = 284639
+MaxY = 333513
+
+Left Longitude  download=15.4405975341797
+Right Longitude download=15.44677734375
+Top Latitude    download=43.9344949020654
+Bottom Latitude download=43.932022468442
+
+TOP LEFT: 535363.37 4864691.72
+BOTTOM RIGHT: 535860.86 4864419.78
+
+Console:
+	Top Right 535863.26, 4864684,8         43.934408    15.44682508164679
+	Bottom Left 535365.77, 4864412.86      43.931984    15.440608893384349
+
+
+All images' scope information are saved to C:\umdtask\Biograd\Biograd_na_moru_list.txt
+
+Total count of images would be downloaded: 45
+
+Download threads count: 8
+
+Zoom level: 19
+
+path: C:\umdtask\Biograd\
+
+Start downloading...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T6:seq=5,ms_284631_333513_19.jpg OK
+T2:seq=1,ms_284631_333509_19.jpg OK
+T4:seq=3,ms_284631_333511_19.jpg OK
+T5:seq=4,ms_284631_333512_19.jpg OK
+T7:seq=6,ms_284632_333509_19.jpg OK
+T3:seq=2,ms_284631_333510_19.jpg OK
+T1:seq=8,ms_284632_333511_19.jpg OK
+T8:seq=7,ms_284632_333510_19.jpg OK
+T6:seq=13,ms_284633_333511_19.jpg OK
+T7:seq=14,ms_284633_333512_19.jpg OK
+T8:seq=15,ms_284633_333513_19.jpg OK
+T1:seq=16,ms_284634_333509_19.jpg OK
+T2:seq=9,ms_284632_333512_19.jpg OK
+T4:seq=11,ms_284633_333509_19.jpg OK
+T5:seq=12,ms_284633_333510_19.jpg OK
+T3:seq=10,ms_284632_333513_19.jpg OK
+T8:seq=23,ms_284635_333511_19.jpg OK
+T6:seq=21,ms_284635_333509_19.jpg OK
+T1:seq=24,ms_284635_333512_19.jpg OK
+T4:seq=19,ms_284634_333512_19.jpg OK
+T3:seq=18,ms_284634_333511_19.jpg OK
+T7:seq=22,ms_284635_333510_19.jpg OK
+T2:seq=17,ms_284634_333510_19.jpg OK
+T5:seq=20,ms_284634_333513_19.jpg OK
+T8:seq=31,ms_284637_333509_19.jpg OK
+T4:seq=27,ms_284636_333510_19.jpg OK
+T7:seq=30,ms_284636_333513_19.jpg OK
+T6:seq=29,ms_284636_333512_19.jpg OK
+T1:seq=32,ms_284637_333510_19.jpg OK
+T5:seq=28,ms_284636_333511_19.jpg OK
+T3:seq=26,ms_284636_333509_19.jpg OK
+T2:seq=25,ms_284635_333513_19.jpg OK
+T4:seq=35,ms_284637_333513_19.jpg OK
+T6:seq=37,ms_284638_333510_19.jpg OK
+T8:seq=39,ms_284638_333512_19.jpg OK
+T5:seq=36,ms_284638_333509_19.jpg OK
+T2:seq=33,ms_284637_333511_19.jpg OK
+T7:seq=38,ms_284638_333511_19.jpg OK
+T1:seq=40,ms_284638_333513_19.jpg OK
+T3:seq=34,ms_284637_333512_19.jpg OK
+T8 Finished.
+T1 Finished.
+T7 Finished.
+T6:seq=45,ms_284639_333513_19.jpg OK
+T4:seq=43,ms_284639_333511_19.jpg OK
+T2:seq=41,ms_284639_333509_19.jpg OK
+T5:seq=44,ms_284639_333512_19.jpg OK
+T3:seq=42,ms_284639_333510_19.jpg OK
+T6 Finished.
+T4 Finished.
+T2 Finished.
+T5 Finished.
+T3 Finished.
+
+--------------------------------
+Task Stoped!
+
+Now time:9/28/2015 4:27:31 PM
+
+Log file has been saved as C:\umdtask\Biograd\Biograd_na_moru_log.txt

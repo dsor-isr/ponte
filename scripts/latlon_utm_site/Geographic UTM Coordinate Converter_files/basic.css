@@ -1,0 +1,65 @@
+
+BODY           { background-image: url(/~taylorc/images/logo-bg.gif);
+                 background-position: top left;
+                 background-repeat: repeat-x;
+                 background-color: #f9f3f3;
+                 color: #000066; }
+
+A:link         { color: #0000ff; text-decoration: underline; }
+A:active       { color: #ff0000; text-decoration: underline; }
+A:visited      { color: #000099; text-decoration: underline; }
+
+H1, H2, H3, H4, H5, H6
+               { font-family: "Arial", sans-serif; }
+
+P.pagehdrtext  { text-align: right;
+                 font-family: "Times New Roman", serif;
+                 font-size: 2em; /* Warning:  This confuses MSIE3.0 */
+                 font-style: italic;
+                 background: transparent; color: #000066; }
+
+DIV.announce   { border: 3px solid black;
+                 background: white;
+                 clear: both; padding: 0.5em;
+                 text-align: center;
+                 font-family: "Times New Roman", serif; }
+
+DIV.logo       { text-align: right; }
+
+DIV.navigate   { float: left; }
+
+.center        { text-align: center; }
+
+.footnote      { font-size: 80%; margin-top: 0.5em; margin-bottom: 0.5em; }
+.footnote-id   { vertical-align: super; font-size: 70%; }
+.footnote-sep  { width: 30%; text-align: left; margin-top: 2em; }
+
+.foreign-language { font-style: italic; }
+
+.italic        { font-style: italic; }
+
+
+.narrow      { margin-left: 5em; margin-right: 5em;
+               margin-top: 0.5em; margin-bottom: 0.5em;
+               border: none;
+               padding: 0.5em;
+               text-align: center; }
+
+.narrow P    { text-align: justify; color: #000066; }
+
+.title       { font-size: 2em; text-align: center; }
+
+  /* In order to minimize the mess Navigator 4.x makes here, it's
+     necessary to use a pair of nested DIVs to put the "focus" sidebar
+     where it belongs and specify the margins I want.  Not that Navigator
+     is going to get this part right anyway.... */
+  DIV.notforsale { width: 12em; float: right; }
+  DIV.notforsale-inner {
+                         margin: 0 0 0 0.5em; border: 1px solid #cccccc;
+                         padding: 0.5em 0.5em 0.5em 0.5em;
+                         background: #cccccc scroll 50% 50%;
+                         color: black;
+                         font-family: "Arial", "Helvetica", sans-serif;
+                         text-align: center; }
+  DIV.notforsale H2    { font-size: 1.5em;
+                         font-family: "Arial", "Helvetica", sans-serif; }

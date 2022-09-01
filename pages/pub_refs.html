@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+  <link type="text/css" rel="stylesheet" href="../css/materialize.min.css"  media="screen,projection">
+  <script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="../js/materialize.min.js"></script>
+  <!-- <script type="text/javascript" src="../scripts/Mission_Definition.js"></script> -->
+  <script type="text/javascript" src="../scripts/basic.js"></script>
+  <script type="text/javascript" src="../scripts/Medusa_MOOS_ROS.js"></script>
+  <script type="text/javascript" src="../scripts/sub_page_add_vehicles.js"></script>
+  <style>
+  	.active_row{
+  		background-color: #efefef;
+  	}
+  </style>
+	<script>
+
+		var id_active_row=0;
+
+		function updateActiveRow(){
+			var obj_row_active=$('.publisher').eq(id_active_row);
+			$.each(obj_row_active.siblings(), function(ind,value){
+				$(value).removeClass('active_row');
+			});
+			$('.publisher').eq(id_active_row).addClass('active_row');
+		}
+
+		function updateActiveSlider(inc_flag){
+			$('.row input[type=range]').blur();
+			var obj_row_active = $('.publisher').eq(id_active_row);
+			var row_id = obj_row_active.attr('id');
+			var slideObj = $('#' + row_id + ' input[type=range]');
+			//var val = parseInt(slideObj.attr('value'));
+			var val = parseInt(slideObj.val());
+			var step = slideObj.attr('step');
+			var sign = Math.pow(-1, !inc_flag);
+			if(step === undefined){
+				step = 1;
+			}
+			var result = (val+sign*step);
+			var topicObj=getTopicObj(row_id,false);
+			var topicname=topicObj.topicname;
+			if(topicObj.topicname === "/YawRef"){
+				result = (360+result) % 360;
+			}
+			slideObj.val(result);
+			showValue(row_id,false);
+		}
+
+		window.onkeydown = KeyDownHandler;
+		window.onkeyup = KeyUpHandler;
+		//window.onmousedown = MouseDown;
+
+		if(document.getElementById('html')){
+			document.getElementById('html').bind('keydown', function(){ KeyDownHandler(); });
+			document.getElementById('html').bind('keyup', function(){ KeyUpHandler(); });
+			document.getElementById('html').bind('mousewheel', function(){ scrollZoom(); });
+			//document.getElementById('html').bind('mousedown', function(){ MouseDown(); });
+		}
+
+		function KeyDownHandler(event){
+		    var keyCode = ('which' in event) ? event.which : event.keyCode;
+		    if(event.shiftKey){
+		        shiftpress = true;    
+		        vehicle_spans = document.getElementsByClassName('overimage');
+		        for(var i=0; i<vehicle_spans.length;i++)
+		            vehicle_spans[i].style.setProperty('cursor','url(style/images/openhand.cur)');
+		    }
+		    if(keyCode ==32) //space
+		        btSTOP();
+		    else if(keyCode ==37){ //left
+		    	updateActiveSlider(false);
+		    }
+		    else if(keyCode ==38){ //up
+		    	id_active_row=(--id_active_row)%$('.publisher').length;
+		    	updateActiveRow();
+		    } 
+		    else if(keyCode ==39){ //right
+		    	updateActiveSlider(true);
+		    }
+		    else if(keyCode ==40){ //down
+		    	id_active_row=(++id_active_row)%$('.publisher').length;
+		    	updateActiveRow();
+		    }
+		    else if(keyCode ==17) //ctrl
+		        ctrlpress=true;
+		}
+
+		function addTopics(row_id, topic_obj0, topic_obj1){
+			var id_topic=row_id;
+			var topic_obj=topic_obj0;
+/*			if(topic_obj.topicname[0]==='/'){
+				id_topic = topic_obj.topicname.slice(1);
+				id_topic=id_topic.replace(/\//g,"-");
+			}*/
+			var id_slider = 'slider_'+id_topic;
+			var step_string ='';
+			if (topic_obj.step){
+				step_string = 'step = '+topic_obj.step;
+			}
+			var new_topic=$('<div class="row publisher" id="'+ row_id +'" t_active="true" t0obj='+JSON.stringify(topic_obj0).replace(/"/g,"'")+' t1obj='+JSON.stringify(topic_obj1).replace(/"/g,"'")+'><form><div class="col"><div class="switch"><label>Off<input type="checkbox" class="pub"><span class="lever" onclick=updateLever(\''+id_topic+'\');></span>On</label></div></div><div class="col"><div class="switch switch_topic"><label>'+topic_obj0.topicname+'<input type="checkbox"><span class="lever" onclick=updateUI(\''+row_id+'\');></span>'+topic_obj1.topicname+'</label></div></div> <div class="col"> <input type="range" min="'+topic_obj.min_range+'" max="'+topic_obj.max_range+'" value="0" onchange="showValue(\''+id_topic+'\')" id='+id_slider+' '+step_string+' style="width: 100px"/> </div> <div class="col"> <span class="value">0.0</span> </div> <div class="col"> <input type="text" name="TopicRate" placeholder="insert value"> </div> </form> </div>');
+
+			$('.topics').append(new_topic);
+			showValue(row_id);
+		}
+
+		function getTopicObj(row_id, swap){
+			var topic_obj0 = JSON.parse($('#'+row_id).attr('t0obj').replace(/'/g,'"'));
+			var topic_obj1 = JSON.parse($('#'+row_id).attr('t1obj').replace(/'/g,'"'));
+			var topic_obj;
+			var switch_topic_flag = $('#'+row_id+' .switch_topic input:checkbox')[0].checked;
+			if(switch_topic_flag===false && swap===false || switch_topic_flag===true && swap===true){
+				topic_obj=topic_obj0;
+			}else{
+				topic_obj=topic_obj1;
+			}
+			return topic_obj;
+		}
+
+		function updateUI(row_id){
+			var topicObj = getTopicObj(row_id, true);
+			var slideObj = $('#'+row_id+' input[type=range]')[0];
+			slideObj.min = topicObj.min_range;
+			slideObj.max = topicObj.max_range;
+			slideObj.value = 0;
+			showValue(row_id, true);
+		}
+
+		function slider_conversion(topic_name,val){
+			if(topic_name==='/URef'){
+				val = (val/10).toFixed(1);
+			}
+		/*	if(topic_name==='slider_yawref'){
+				val = val;
+			}*/
+			if(topic_name==='/DepthRef' || topic_name==='/AltRef'){
+				val = (val/2).toFixed(1);
+			}
+			return val;
+		}
+
+		function showValue(row_id, swap_flag){
+			if(swap_flag===undefined){ swap_flag = false;}
+			var slideObj = $('#'+row_id+' input[type=range]')[0];
+			var val=slideObj.value;
+			var topicObj = getTopicObj(row_id, swap_flag);
+			var slider_id = topicObj.topicname;
+			val=slider_conversion(topicObj.topicname, val);
+			var vec_spans = $("#"+row_id +" span.value");
+			for(var i=0; i<vec_spans.length; i++){
+				vec_spans[i].innerHTML=(val+' '+topicObj.units);
+			}
+		}
+		function testAbort(xmlrq){
+			console.log("not aborted:"+xmlrq.readyState + " xmlhttp.status " + xmlhttp.status)
+			xmlrq.abort();
+			console.log("aborted:"+xmlrq.readyState)
+		}
+
+		function testReadyState(xmlrq){
+	    	console.log("Received ready: " + xmlrq.readyState);
+			if (xmlrq && xmlrq.readyState != 4)  { return; }
+            if (xmlrq && xmlrq.status == 200){
+            	console.log("worked");
+            	clearTimeout(xmlrq.time);
+            }
+		}
+
+		var indreq = 3.0;
+		function pub_references(){
+			newIP();
+			var xmlreq=[];
+			indreq=0;
+			$.each($('.publisher'), function( index, elem ) {
+				if($(elem).find('input:checkbox.pub')[0].checked===false){return;}
+				xmlreq.push(new XMLHttpRequest());
+				var topicObj=getTopicObj(elem.id,false);
+				var topicname=topicObj.topicname;
+				var slideObj = $('#'+elem.id+' input[type=range]')[0];
+				var val = slider_conversion(topicname, slideObj.value);
+				//VehicleServer
+				//10.0.20.107
+				//xmlreq[xmlreq.length-1].open("GET","http://10.0.20.107:7080/"+"VAR%20"+'State',true); // Server stuck in a loop.
+				//xmlreq[xmlreq.length-1].open("GET","http://127.0.0.1:7080/"+"RSET%20console/publish%20medusa_msgs/periodictopic {name: "+topicname+", data: '"+val+"', type: "+topicObj.topictype+", rate: 5}",true); // Server stuck in a loop.
+				xmlreq[xmlreq.length-1].open("GET",VehicleServer+"RSET%20console/publish%20medusa_msgs/periodictopic {name: "+topicname+", data: '"+val+"', type: "+topicObj.topictype+", rate: 5}",true); // Server stuck in a loop.
+				indreq=indreq+1;
+				xmlreq[xmlreq.length-1].time = setTimeout(testAbort.bind(null,xmlreq[xmlreq.length-1]),500);
+			    xmlreq[xmlreq.length-1].onreadystatechange = testReadyState.bind(null,xmlreq[xmlreq.length-1]);
+			    xmlreq[xmlreq.length-1].send();
+			});
+		}
+	</script>
+</head>
+<body onload="VehicleActionsInit(true);updateActiveRow();">
+    <header>
+      <nav class="top-nav blue-grey darken-1">
+        <div class="container">
+          <div class="nav-wrapper"><a class="page-title" style="font-size: 36px; font-family: 'Roboto', sans-serif">Publish references</a></div>
+        </div>
+      </nav>
+    </header>
+    <main>
+    <div class="section">
+    <div id="div_vehicle_selection">
+    </div>
+    </div>
+<textarea style="visibility: hidden; display: none;"></textarea>
+<div class="topics">
+
+</div>
+
+<script type="text/javascript">
+addTopics('surge', {topicname: '/URef', topictype: 'std_msgs/Float64', min_range: 0, max_range: 10, units: 'm/s'}, {topicname: '/HCm_Mode', topictype: 'std_msgs/Int8', min_range: -100, max_range: 100, units: '%'});
+addTopics('yaw', {topicname: '/YawRef', topictype: 'std_msgs/Float64', min_range: 0, max_range: 360, units: 'deg', step: 5}, {topicname: '/HDf_Mode', topictype: 'std_msgs/Int8', min_range: -100, max_range: 100, units: '%'});
+addTopics('heave', {topicname: '/DepthRef', topictype: 'std_msgs/Float64', min_range: 0, max_range: 20, units: 'm'}, {topicname: '/AltRef', topictype: 'std_msgs/Float64', min_range: 0, max_range: 20, units: 'm'});
+addTopics('heave2', {topicname: '/VCm_Mode', topictype: 'std_msgs/Int8', min_range: -100, max_range: 100, units: '%'}, {topicname: '/dummy_lala', topictype: 'std_msgs/Float64', min_range: 0, max_range: 20, units: 'm'});
+$(document).ready(function() {
+	setInterval("pub_references();", 2000);
+});
+
+/*$.each($('input:checkbox.pub'), function(ind,obj){
+	obj.checked=true;
+})*/
+</script>
+
+
+</body>
+</html>

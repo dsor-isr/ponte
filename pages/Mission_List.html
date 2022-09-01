@@ -1,0 +1,59 @@
+<html lang="en">
+<head>
+	<title>Vehicle's Mission List</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style>
+		* { margin: 0; padding: 0; }
+		html { height: 100%; }
+		body {font-size: 62.5%; font-family: Arial, Tahoma, sans-serif; color: #343434;}
+		p { font-size: 1.3em; line-height: 1.5em; margin-bottom: 10px; }
+		a { text-decoration: none; }
+		img { border: 0; }
+	</style>
+    <script type="text/javascript" src="../scripts/basic.js"></script>
+	<script type="text/javascript">
+		function FindVehicles(){
+			if(localStorage['VehiclesData']){
+				VehiclesData = JSON.parse(localStorage.VehiclesData);
+			}else{
+				return;
+			}
+			var header=document.getElementById('header_row');
+			var content=document.getElementById('content_row');
+		
+			var num_active_vehicles=0;
+			for(var i=0; i<VehiclesData.length; i++){
+				/*num_active_vehicles+=1;*/
+				if(VehiclesData[i].active ===false) continue;
+				var child = document.createElement("th");
+				child.innerHTML=VehiclesData[i].name;
+				header.appendChild(child);
+
+				var child_td = document.createElement("td");
+				content.appendChild(child_td);
+				var child_iframe = document.createElement("iframe");
+				child_td.appendChild(child_iframe);
+				child_iframe.setAttribute("class", "MList");
+				child_iframe.setAttribute("frameborder", "0");
+				child_iframe.setAttribute("height", "100%");
+				child_iframe.setAttribute("width", "100%");
+				var VehicleURL = getVehicleURL(i);
+				child_iframe.setAttribute("src", VehicleURL+"Missions");
+				child_iframe.innerHTML='<p><font color="red">ERROR:<br> The vehicle did not return the Mission List</font></p>';
+			}
+		}
+	</script>
+</head>
+
+<body onLoad="FindVehicles();">
+	<center>
+		<table id="table_VCLS" border="" height="100%" width="100%" cellpadding="0" cellspacing="0" >
+			<tr id="header_row">
+			</tr>
+			<tr height="100%" id="content_row">
+			</tr>
+		</table>
+	</center>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<html>
+<head>
+<script src="jquery-2.1.1.min.js"></script>
+<script src="speedmeter.js"></script>
+<link rel="stylesheet" href="speedmeter.css" type="text/css" />
+<body>
+<div class="speedmeter_container">
+<span id="speedmeter_value">speed 0m/s</span>
+<br>
+<span id="speedmeter_value_ref">ref 0.1m/s</span>
+	<div class="speedmeter">
+    	<bar id="speedmeter_pointer_ref" class="speedmeter_pointer_ref"> </bar>
+    	<bar id="speedmeter_pointer" class="speedmeter_pointer"> </bar>
+	</div>
+</div>
+<script>
+setInterval(speedmeter_update, 100);
+</script>
+</body>
+</html>

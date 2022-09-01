@@ -1,0 +1,115 @@
+.spacer {
+  -moz-inline-block; 
+  display: block; 
+  overflow: auto;
+  clear: both;
+}
+#mds_widget {
+  background: url("../style/side_view_color_50.png") no-repeat top left;
+  /*background-size: 100% 100%;*/
+  /*position: absolute;*/
+  /*transform-origin: left;*/
+  /*transform-origin: top left;*/
+/*  -ms-transform: scale(0.7, 0.7) rotate(0deg);
+  -webkit-transform: scale(0.7, 0.7) rotate(0deg) ; */
+  /*transform: rotate(90deg);*/
+/*  width: 294px;
+  height: 178px;*/
+  /*display: inline-block;*/
+  position: relative;
+  display: inline-block;
+}
+.green {
+  background: rgba(0,255,0,0.8);
+}
+
+.red {
+  background: rgba(255,0,0,0.8);
+}
+
+span[id*="mds_widget_"] {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+  cursor: hand;
+}
+
+.mds_placeholder {
+  color: #7d7d7d;
+  position:absolute; 
+  top: 3px; 
+  display:block;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  /* this will work for QtWebKit in future */
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+/*
+#mds_upper_tube_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+
+#mds_ver_back_th1_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_ver_back_th2_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_hor_right_th2_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_hor_right_th1_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_lower_tube_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_ver_front_th1_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_ver_front_th2_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_dvl_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_back_release_weight_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+
+#mds_front_release_weight_overlay {
+  position: absolute;
+  display: inline-block;
+  z-index: 5;
+}
+*/

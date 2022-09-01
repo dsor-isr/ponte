@@ -1,0 +1,8 @@
+
+Left Longitude  download=-8.87832641601563
+Right Longitude download=-8.82064819335938
+Top Latitude    download=37.9463634475836
+Bottom Latitude download=37.9214511668056
+
+BL: 510694.00, 4197106.88
+TR: 515758.08, 4199879.13

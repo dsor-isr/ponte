@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sensor Plot</title>
+    <!--<link href="layout.css" rel="stylesheet" type="text/css">-->
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="../flot/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="../flot/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="../flot/jquery.flot.resize.js"></script>
+    <style type="text/css">
+    html, body {
+        height: 95%;
+    }
+    </style>
+	<script type="text/javascript">
+		function appendSelect(){
+			var elSel = document.getElementById('selectVARS');
+			elSel.options.length = 0;
+			// MOOS
+			/*if(localStorage['VARS'])
+				VARS = 	JSON.parse(localStorage['VARS']);*/
+				
+			//ROS
+			
+			
+			if(localStorage['CURRENT_KEYS'])
+				CURRENT_KEYS = 	JSON.parse(localStorage['CURRENT_KEYS']);
+				
+			if(!localStorage.CURRPLOT)
+				localStorage.CURRPLOT = "GPS_X";
+			
+			// MOOS
+			/*for(j=0; j<VARS.length;j++){
+				var opt = document.createElement("OPTION");
+				opt.text = VARS[j];
+				opt.value= VARS[j];
+				elSel.options.add(opt);
+				//var elOptNew = document.createElement('option');
+				//elOptNew.text = VARS[j];
+				//elOptNew.value = VARS[j];
+				//var elOptOld = elSel.options[elSel.selectedIndex];	
+			}*/
+			
+			// ROS
+			for(j=0; j<CURRENT_KEYS.length;j++){
+				var opt = document.createElement("OPTION");
+				opt.text = CURRENT_KEYS[j];
+				opt.value= CURRENT_KEYS[j];
+				elSel.options.add(opt);
+			}
+		}
+	</script>
+ </head>
+    <body onLoad="appendSelect();">
+    <!--<h1>Sensor Plot</h1>-->
+	<select id="selectVARS">
+	<!--<Option value="" >VAR List</option>-->
+	</select>
+    <p style="display: inline; margin: 10px">Time Show: <input id="updateScale" type="text" value="" style="text-align: right; width:5em"> seconds </p>
+    <p style="display: inline; margin: 10px"> Min Y: <input id="minYScale" type="text" value="" style="text-align: right; width:5em"> </p>
+    <p style="display: inline; margin: 10px"> Max Y: <input id="maxYScale" type="text" value="" style="text-align: right; width:5em"> </p>
+    <p style="display: inline; margin: 10px"><input id="enableAutoAxis" type="checkbox" checked="yes">Auto Axis</p>
+    <div id="placeholder" style="width:90%;height:90%;align:center;"></div>
+
+<script type="text/javascript">
+$(function () {
+    // we use an inline data source in the example, usually data would
+    // be fetched from a server
+    var data = [];
+    function getRandomData() {
+        if (data.length >= updateScale)
+            data = data.slice(1);
+
+	if(data.length > updateScale)
+		data = data.slice(updateScale);
+        // do a random walk
+        //while (data.length < updateScale) {
+            var prev = data.length > 0 ? data[data.length - 1] : 50;
+            var y = prev + Math.random() * 10 - 5;
+            if (y < 0)
+                y = 0;
+            if (y > 360)
+                y = 360;
+            data.push(y);
+        //}
+
+        // zip the generated y values with the x values
+        var res = [];
+        for (var i = 0; i < data.length; ++i)
+            res.push( [i-data.length, data[i]]);
+	
+        return res;
+    }
+	
+	function getValidData() {
+		var res = [];
+		if(localStorage.CURRPLOTVALUE){
+			data = JSON.parse(localStorage.CURRPLOTVALUE);
+			if(data.length>updateScale)
+				data = data.slice(data.length-updateScale);
+			localStorage.CURRPLOTVALUE = JSON.stringify(data);
+		}else
+			return res;
+        for (var i = 0; i < data.length; ++i)
+            res.push( [i-data.length, data[i]]);
+	
+        return res;
+    }
+    
+    var updateScale = 300;
+    $("#updateScale").val(updateScale).change(function () {
+        var v = $(this).val();
+        if (v && !isNaN(+v)) {
+            updateScale = +v;
+            if (updateScale < 5)
+                updateScale = 5;
+            if (updateScale > 1000)
+                updateScale = 1000;
+            $(this).val("" + updateScale);
+        }
+    });
+    var minYScale = 0;
+    $("#minYScale").val(minYScale).change(function () {
+        var v = $(this).val();
+        if (v && !isNaN(+v)) {
+            minYScale = v;
+	    if(maxYScale<=minYScale){
+		alert('Min Y has to be smaller than max Y');
+		minYScale = maxYScale-1;
+	    }
+            $(this).val("" + minYScale);
+        }
+    });
+
+    var maxYScale = 10;
+    $("#maxYScale").val(maxYScale).change(function () {
+        var v = $(this).val();
+        if (v && !isNaN(+v)) {
+            maxYScale = v;
+	    if(maxYScale<=minYScale){
+		alert('Min Y has to be smaller than max Y');
+		maxYScale=minYScale+1;
+	    }
+            $(this).val("" + maxYScale);
+        }
+    });
+
+    // setup control widget
+    var updateInterval = 200;
+    
+    // setup plot
+    var options = {
+        series: { shadowSize: 0 }, // drawing is faster without shadows
+    };
+    var plot = $.plot($("#placeholder"), [ getRandomData() ], options);
+
+    function update() {
+		//plot.setData([ getRandomData() ]);
+		//plot.setupGrid();
+		//plot.draw();
+		if ($("#enableAutoAxis:checked").length > 0) {
+			options = {
+				series: { shadowSize: 0 }, // drawing is faster without shadows
+			};
+		}else{
+			options = {
+				series: { shadowSize: 0 }, // drawing is faster without shadows
+				yaxis: { min: minYScale, max: maxYScale },
+			};
+		}
+		$.plot($("#placeholder"), [ {data: getValidData(), label: $("#selectVARS").val()} ], options);
+		setTimeout(update, updateInterval);
+    }
+	
+	$('#selectVARS').change(function() {
+		localStorage.CURRPLOT = $(this).val();
+		localStorage.removeItem('CURRPLOTVALUE');
+	});
+	setTimeout(update, updateInterval);
+});
+</script>
+
+ </body>
+</html>

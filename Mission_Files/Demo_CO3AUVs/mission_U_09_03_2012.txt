@@ -1,0 +1,9 @@
+#Version Number
+2
+#Xrefpoint, Yrefpoint, Zone
+491952.326 4290847.696 29S
+#LINE xInit yInit xEnd yEnd velocity <user data>
+#ARC xInit yInit xCenter yCenter xEnd yEnd velocity adirection radius <user data>
+LINE -50.000 0.000 -100.000 0.000 0.500
+ARC -100.000 0.000 -100.000 -25.000 -100.000 -50.000 0.500 -1.000 25.000
+LINE -100.000 -50.000 -30.000 -50.000 0.500
