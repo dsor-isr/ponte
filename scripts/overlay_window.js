@@ -45,7 +45,15 @@ Scenarios.push(new Scenario("Nortesport", "Mission_scenarios/Nortesport.png", "M
 Scenarios.push(new Scenario("Nortesport_zoom", "Mission_scenarios/Nortesport_zoom.png", "Mission_scenarios/Nortesport_zoom.png", false, 454754.78, 4529585.70 , 290.64, 286.00, "30S"));
 Scenarios.push(new Scenario("Nortesport_hyper_zoom", "Mission_scenarios/Nortesport_hyper_zoom.png", "Mission_scenarios/Nortesport_hyper_zoom.png", false, 454827.50, 4529657.25 , 145.32, 143.00, "30S"));
 Scenarios.push(new Scenario("teste_zoom", "Mission_scenarios/teste_zoom.png", "Mission_scenarios/teste_zoom.png", false, 409951.47, 4487035.53 , 2351.73, 2287.48, "30S"));
-
+Scenarios.push(new Scenario("GranCanaria_Taliarte", "Mission_scenarios/canarias.png", "Mission_scenarios/canarias.png", false, 461805.82, 3093447.54, 3150.83, 3067.45, "28R"));
+Scenarios.push(new Scenario("GranCanaria_LasPalmas", "Mission_scenarios/canarias_laspalmas.png", "Mission_scenarios/canarias_laspalmas.png", false, 457803.08, 3105031.08, 6958.36, 8655.14, "28R"));
+Scenarios.push(new Scenario("GranCanaria_LasPalmas_Zoom", "Mission_scenarios/canarias_laspalmas_zoom.png", "Mission_scenarios/canarias_laspalmas_zoom.png", false, 457821.11, 3110139.18, 2576.43, 3560.73, "28R"));
+Scenarios.push(new Scenario("Tagus_river_belem", "Mission_scenarios/tagus_river_belem.png", "Mission_scenarios/tagus_river_belem.png", false, 478043.37, 4280479.82, 6805.98, 2974.85, "29S"));
+Scenarios.push(new Scenario("Castelo_de_Bode", "Mission_scenarios/castelo_de_bode.png", "Mission_scenarios/castelo_de_bode.png", false, 564823.22, 4397570.81, 1894.83, 1126.18, "29S"));
+Scenarios.push(new Scenario("Kolumbo Crater", "Mission_scenarios/kolumbo_crater_hires.jpg", "Mission_scenarios/kolumbo_crater_hires.jpg", false, 360744.39, 4039219.72, 8394.4, 8967.68, "35S"));
+Scenarios.push(new Scenario("Kolumbo Zoom Vents", "Mission_scenarios/kolumbo_zoom_vents.PNG", "Mission_scenarios/kolumbo_zoom_vents.PNG", false, 364412.34, 4043343.31, 180.9, 188.37, "35S"));
+Scenarios.push(new Scenario("Exo Gialos Zoom 1", "Mission_scenarios/exo_gialos_bathymetry_zoom1.PNG", "Mission_scenarios/exo_gialos_bathymetry_zoom1.PNG", false, 360211.44, 4031094.76, 4488.3, 3382.52, "35S"));
+Scenarios.push(new Scenario("Exo Gialos Zoom 2", "Mission_scenarios/exo_gialos_bathymetry_zoom2.PNG", "Mission_scenarios/exo_gialos_bathymetry_zoom2.PNG", false, 361497.51, 4032303.49, 1431.83, 916.28, "35S"));
 
 /*var ScenNames = new Array("./Mission_scenarios/my_map_expo2.jpg","./Mission_scenarios/map_expo_color.jpg","./Mission_scenarios/weaver_zoom.png", "./Mission_scenarios/my_map_expo.jpg","./Mission_scenarios/sesimbra_small_18_quart.jpg","./Mission_scenarios/sesimbra.jpg", "./Mission_scenarios/my_map_oeiras_final.jpg", "./Mission_scenarios/my_map_ist.jpg", "./Mission_scenarios/expo_bathy.jpg", "./Mission_scenarios/toulon_map.jpg", "./Mission_scenarios/toulon_map_zoom.jpg", "./Mission_scenarios/porto_brandao.jpg", 
 "./Mission_scenarios/sant_feliu_Girona.jpg", "./Mission_scenarios/EMEPC_Pool.png");
