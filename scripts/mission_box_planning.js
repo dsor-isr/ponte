@@ -1645,7 +1645,7 @@ window.mission_program_configs = function () {
   localStorage['mdconf_mission_id']=JSON.stringify(mySel.missionPtr.mission_id);
   //localStorage['mdconf_standard_mission_flag']=JSON.stringify(mySel.missionPtr.standard_mission_flag);
   //localStorage['mdconf_mission_speed']=JSON.stringify(mySel.mission_speed);
-  disp_overlay('mission_design_configs');
+  // disp_overlay('mission_design_configs');
   //window.close();
   //setTimeout(function(){   update_mission_done(mySel.missionPtr);
   //dummy_update();
